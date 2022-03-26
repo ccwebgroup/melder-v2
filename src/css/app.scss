@@ -1,0 +1,26 @@
+// app global css in SCSS form
+@import url(https://fonts.googleapis.com/css?family=Poppins);
+
+body {
+  font-family: "Poppins", sans-serif;
+}
+
+.bg-overlay {
+  background: #01072b48 !important;
+}
+
+.bg-blue-gradient {
+  background: linear-gradient(135deg, #0cb7ed 0%, #0470dc 100%);
+}
+
+.bg-teal-gradient {
+  background: linear-gradient(135deg, #0ac2c0 0%, #0583d2 100%);
+}
+
+.border-top-rounded {
+  border-radius: 25px 25px 0px 0px !important;
+}
+
+.router-link {
+  text-decoration: none;
+}
