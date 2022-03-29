@@ -249,6 +249,17 @@ export const useGroupStore = defineStore("groups", {
       this.joinedGroups = groups;
     },
 
+    async getMembers(payload) {
+      const groupRef = doc(db, "groups", payload.groupId);
+      const q = query(collection(groupRef, "members"));
+      const querySnapshot = await getDocs(q);
+      let members = [];
+      querySnapshot.forEach((doc) => {
+        members.push(doc.id);
+      });
+      return members;
+    },
+
     async getGroupsManage() {
       let authUserId = auth.currentUser.uid;
       const groupsRef = collection(db, "groups");

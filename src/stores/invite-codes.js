@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { Loading } from "quasar";
 
 //Firebase
 import {
@@ -9,35 +10,90 @@ import {
   getDocs,
   getDoc,
   setDoc,
+  deleteDoc,
   addDoc,
   query,
+  orderBy,
   where,
+  limit,
   serverTimestamp,
+  Timestamp,
 } from "boot/firebase";
 
 //Other Stores
+import { useUserStore } from "./users";
 import { useGroupStore } from "./groups";
 import { useNotifStore } from "./notifs";
 
 export const useCodeStore = defineStore("inviteCodes", {
   state: () => {
     return {
-      inviteCodes: [],
+      defaultCode: null,
     };
   },
 
   actions: {
+    async deleteInviteCode(payload) {
+      const codeRef = collection(db, "inviteCodes");
+      const q = query(
+        codeRef,
+        where("creatorId", "==", payload.userId),
+        where("groupId", "==", payload.groupId),
+        where("expirationDate", "<", Timestamp.now().toDate())
+      );
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach(async (codeDoc) => {
+        await deleteDoc(doc(db, "inviteCodes", codeDoc.id));
+      });
+    },
+
     async joinGroupViaCode(code) {
+      const groupStore = useGroupStore();
+      const userStore = useUserStore();
       const codeRef = doc(db, "inviteCodes", code);
-      const codeData = await (await getDoc(codeRef)).data();
-      if (codeData === undefined) {
-        return "invalid";
+      const docSnap = await getDoc(codeRef);
+      if (docSnap.exists()) {
+        let codeData = docSnap.data();
+        if (codeData.expiration) {
+          if (codeData.expirationDate.toDate() < Timestamp.now().toDate()) {
+            return { status: "invalid", message: "Invite code is expired." };
+          }
+        }
+        Loading.show();
+        // check if user is already a member of the group
+        const members = await groupStore.getMembers({
+          groupId: codeData.groupId,
+        });
+        if (members.includes(auth.currentUser.uid)) {
+          return { status: "invalid", message: "User is already a member." };
+        }
+        await groupStore.addMember({
+          userId: auth.currentUser.uid,
+          groupId: codeData.groupId,
+        });
+        await userStore.addJoinedGroups({
+          userId: auth.currentUser.uid,
+          groupId: codeData.groupId,
+        });
+        const groupRef = doc(db, "groups", codeData.groupId);
+        const groupSnap = await getDoc(groupRef);
+        if (groupSnap.exists()) {
+          let groupData = groupSnap.data();
+          this.router.push({
+            path: "/group/" + groupData.name.split(" ").join(""),
+            query: { id: codeData.groupId },
+          });
+        }
+        Loading.hide();
+        return { status: "valid" };
+      } else {
+        return { status: "invalid", message: "Invite code is invalid." };
       }
-      console.log("clint gwapo");
     },
 
     async acceptInvite(notif) {
       const authUserId = auth.currentUser.uid;
+      const userStore = useUserStore();
       const groupStore = useGroupStore();
       const notifStore = useNotifStore();
       //Add user to the group
@@ -46,10 +102,8 @@ export const useCodeStore = defineStore("inviteCodes", {
         userId: auth.currentUser.uid,
       });
       //Add group to users Joined Groups list
-      const joinedGroupsRef = doc(
-        collection(doc(db, "users", authUserId), "joinedGroups"),
-        notif.groupId
-      );
+      userStore.addJoinedGroups({ userId: authUserId, groupId: notif.groupId });
+
       await setDoc(joinedGroupsRef, {});
       // Delete Notif
       await notifStore.deleteNotif(notif);
@@ -68,36 +122,41 @@ export const useCodeStore = defineStore("inviteCodes", {
       await groupStore.deleteInviteList(notif);
     },
 
-    async getInviteCodes(payload) {
+    async getDefaultCode(payload) {
       const codeRef = collection(db, "inviteCodes");
       const q = query(
         codeRef,
         where("creatorId", "==", auth.currentUser.uid),
-        where("groupId", "==", payload.groupId)
+        where("groupId", "==", payload.groupId),
+        where("expiration", "==", payload.expiration),
+        limit(1)
       );
-
       const querySnapshot = await getDocs(q);
-      const inviteCodes = [];
-      querySnapshot.forEach((docSnap) => {
-        let inviteCode = docSnap.data();
-        inviteCode.id = docSnap.id;
-        inviteCodes.push(inviteCode);
+      querySnapshot.forEach((codeDoc) => {
+        // Delete expired code
+        this.deleteInviteCode({
+          userId: auth.currentUser.uid,
+          groupId: payload.groupId,
+        });
+
+        let codeData = codeDoc.data();
+        let codeId = codeDoc.id;
+        this.defaultCode = { ...codeData, id: codeId };
       });
-      this.inviteCodes = inviteCodes;
     },
 
     async addInviteCode(payload) {
+      if (payload.expiration) {
+        let expirationDate = qDate.addToDate(Timestamp.now().toDate(), {
+          days: payload.expiration,
+        });
+        payload.expirationDate = expirationDate;
+      }
       payload.creatorId = auth.currentUser.uid;
       payload.createdAt = serverTimestamp();
+
       const codeRef = await addDoc(collection(db, "inviteCodes"), payload);
-      this.inviteCodes.push({
-        ...payload,
-        id: codeRef.id,
-      });
-      return {
-        ...payload,
-        id: codeRef.id,
-      };
+      this.defaultCode = { ...payload, id: codeRef.id };
     },
   },
 });

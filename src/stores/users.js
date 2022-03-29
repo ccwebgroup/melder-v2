@@ -113,6 +113,13 @@ export const useUserStore = defineStore("users", {
       }
     },
 
+    async addJoinedGroups(payload) {
+      const joinedGroupsRef = doc(
+        collection(doc(db, "users", payload.userId), "joinedGroups"),
+        payload.groupId
+      );
+    },
+
     async addGroupManage(payload) {
       const userRef = doc(db, "users", payload.userId);
       const groupsManageRef = collection(userRef, "groupsManage");

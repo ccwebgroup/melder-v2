@@ -25,8 +25,26 @@ const routes = [
       requiresAuth: true,
     },
     children: [
-      { path: "/home", component: () => import("pages/HomePage.vue") },
-      { path: "/groups", component: () => import("pages/GroupsPage.vue") },
+      {
+        path: "/home",
+        name: "Home",
+        component: () => import("pages/HomePage.vue"),
+      },
+      {
+        path: "/groups",
+        name: "Groups",
+        component: () => import("pages/GroupsPage.vue"),
+      },
+      {
+        path: "/updates",
+        name: "Updates",
+        component: () => import("pages/UpdatesPage.vue"),
+      },
+      {
+        path: "/files",
+        name: "Files",
+        component: () => import("pages/FilesPage.vue"),
+      },
     ],
     /*   children: [
 

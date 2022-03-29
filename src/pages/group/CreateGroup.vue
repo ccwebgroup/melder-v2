@@ -47,6 +47,17 @@
           label="Create"
         />
       </q-card-actions>
+      <q-card-actions align="center">
+        <q-btn
+          @click="joinDialog"
+          flat
+          class="q-mb-sm text-bold"
+          dense
+          no-caps
+          color="primary"
+          label="Already have an invite code?"
+        />
+      </q-card-actions>
     </q-card>
   </q-page>
 </template>
@@ -59,6 +70,7 @@ import { useRouter } from "vue-router";
 import { useImageUpload } from "src/composables/image-upload";
 // Import Other Components
 import AvatarCropper from "src/components/dialogs/AvatarCropper.vue";
+import JoinGroup from "src/components/dialogs/JoinGroup.vue";
 // Import Stores
 import { useGroupStore } from "src/stores/groups";
 // Define Stores
@@ -88,6 +100,12 @@ const createGroup = () => {
       query: { id: data.id },
     });
   }, image.type);
+};
+// Join A Group Dialog
+const joinDialog = () => {
+  $q.dialog({
+    component: JoinGroup,
+  });
 };
 
 /*

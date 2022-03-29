@@ -16,7 +16,7 @@
           rounded
           outlined
           placeholder="Enter invite code"
-          error-message="Invite code is invalid"
+          :error-message="errorMessage"
           :error="isInvalid"
         />
       </q-card-section>
@@ -59,11 +59,13 @@ const { dialogRef } = useDialogPluginComponent();
 const codeInput = ref();
 const inviteCode = ref("");
 const isInvalid = ref(false);
+const errorMessage = ref("");
 const codeStore = useCodeStore();
 const joinGroup = async () => {
   const result = await codeStore.joinGroupViaCode(inviteCode.value);
-  if (result == "invalid") {
+  if (result.status == "invalid") {
     isInvalid.value = true;
+    errorMessage.value = result.message;
   }
 };
 </script>

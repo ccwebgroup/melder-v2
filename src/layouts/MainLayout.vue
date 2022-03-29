@@ -1,10 +1,11 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header :class="$q.dark.isActive ? 'bg-dark' : 'bg-white'">
+    <q-header reveal :class="$q.dark.isActive ? 'bg-dark' : 'bg-white'">
       <q-toolbar :class="$q.dark.isActive ? '' : 'text-dark'">
         <q-avatar size="30px" class="q-mr-lg">
           <img src="~assets/melder-logo.svg" />
         </q-avatar>
+        <div class="text-h6">{{ $route.name }}</div>
         <q-space />
         <div class="q-gutter-x-sm q-my-md">
           <q-btn

@@ -80,56 +80,50 @@
       >
         <q-card-section>
           <div class="text-body1 q-mb-sm">Get invite code</div>
-          <q-btn-group outline>
-            <q-btn
-              no-caps
-              @click="copyCode(defaultInviteCode)"
-              outline
-              padding="md lg"
-              :label="defaultInviteCode.id"
-            />
-
-            <q-btn-dropdown auto-close outline icon="settings">
-              <q-list>
-                <q-item-label header class="text-subtitle1"
-                  >Expiration</q-item-label
-                >
-                <q-item @click="setExpiration(false)" clickable>
-                  <q-item-section avatar>
-                    <q-avatar>
-                      <q-icon name="las la-times-circle" />
-                    </q-avatar>
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label class="text-subtitle1">No Limit</q-item-label>
-                  </q-item-section>
-                </q-item>
-                <q-item @click="setExpiration(7)" clickable>
-                  <q-item-section avatar>
-                    <q-avatar>
-                      <q-icon name="las la-stopwatch" />
-                    </q-avatar>
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label class="text-subtitle1">7 Days</q-item-label>
-                  </q-item-section>
-                </q-item>
-                <q-item @click="setExpiration(1)" clickable>
-                  <q-item-section avatar>
-                    <q-avatar>
-                      <q-icon name="las la-stopwatch" />
-                    </q-avatar>
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label class="text-subtitle1">1 Day</q-item-label>
-                  </q-item-section>
-                </q-item>
-              </q-list>
-            </q-btn-dropdown>
-          </q-btn-group>
-          <div class="text-caption">
-            <span class="q-mr-msmd">Expiration: </span>{{ expirationLabel }}
-          </div>
+          <q-field
+            v-if="defaultCode"
+            color="white"
+            dark
+            dense
+            rounded
+            outlined
+            bottom-slots
+          >
+            <template v-slot:control>
+              <div
+                @click="copyCode(defaultCode)"
+                class="self-center full-width no-outline text-right"
+                tabindex="0"
+              >
+                {{ defaultCode.id }}
+              </div>
+            </template>
+            <template v-slot:after>
+              <q-btn round dense flat icon="settings">
+                <q-menu transition-show="jump-down" transition-hide="jump-up">
+                  <q-list style="min-width: 100px">
+                    <q-item clickable @click="setNewCode(false)" v-close-popup>
+                      <q-item-section>No Limit</q-item-section>
+                    </q-item>
+                    <q-item clickable @click="setNewCode(7)" v-close-popup>
+                      <q-item-section>7 Days</q-item-section>
+                    </q-item>
+                    <q-separator />
+                    <q-item clickable @click="setNewCode(1)" v-close-popup>
+                      <q-item-section>1 Day</q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-menu>
+              </q-btn>
+            </template>
+            <template v-slot:hint>
+              Expiration:
+              <span v-show="!defaultCode.expiration">No Limit</span>
+              <span v-show="defaultCode.expiration">{{
+                defaultCode.expiration == 1 ? "1 Day" : "7 Days"
+              }}</span>
+            </template>
+          </q-field>
         </q-card-section>
       </q-card>
     </q-card>
@@ -207,57 +201,41 @@ watch(search, (keyword, oldKeyword) => {
  **************
  */
 const codeStore = useCodeStore();
-const defaultInviteCode = ref("");
-const inviteCodes = computed(() => codeStore.inviteCodes);
+const defaultCode = computed(() => codeStore.defaultCode);
 // Copy invite code to clipboard
 const copyCode = (code) => {
-  copyToClipboard(code).then(() => {
+  copyToClipboard(code.id).then(() => {
     $q.notify({
       message: "Invite code copied",
       color: "positive",
+      icon: "thumb_up",
     });
   });
 };
+
+const getCode = async (expiration) => {
+  await codeStore.getDefaultCode({
+    expiration: expiration,
+    groupId: route.query.id,
+  });
+};
+
 // Get invite codes
 onBeforeMount(() => {
-  codeStore.getInviteCodes({
-    groupId: route.params.id,
-  });
+  getCode(false);
 });
+
 // Set Invite Code Expiration
-const setExpiration = async (expiration) => {
-  // Check if code exist
-  const index = inviteCodes.value.findIndex(
-    (code) => code.expiration == expiration
-  );
-  if (index >= 0) {
-    defaultInviteCode.value = inviteCodes.value[index];
-  } else {
-    let newCode = await codeStore.addInviteCode({
+const setNewCode = (expiration) => {
+  if (expiration) {
+    codeStore.addInviteCode({
       expiration: expiration,
-      groupId: route.params.id,
+      groupId: route.query.id,
     });
-    defaultInviteCode.value = { id: newCode.id, expiration: expiration };
+  } else {
+    getCode(false);
   }
 };
-const expirationLabel = computed(() => {
-  if (!defaultInviteCode.value.expiration) {
-    return "No Limit";
-  } else {
-    if (defaultInviteCode.value.expiration == 1) {
-      return 1 + " Day";
-    } else {
-      return defaultInviteCode.value.expiration + " Days";
-    }
-  }
-});
-onMounted(() => {
-  if (!inviteCodes.value.length) {
-    setExpiration(1);
-  } else {
-    defaultInviteCode.value = inviteCodes.value[0];
-  }
-});
 /*
 Invite Codes Section
 **************
