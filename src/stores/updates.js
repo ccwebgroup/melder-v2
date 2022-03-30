@@ -14,14 +14,18 @@ import {
   deleteDoc,
   serverTimestamp,
   query,
-  where,
   orderBy,
   onSnapshot,
   storage,
   ref,
   uploadBytes,
   getDownloadURL,
+  deleteObject,
 } from "src/boot/firebase";
+
+//Other Stores
+import { useNotifStore } from "./notifs";
+import { useGroupStore } from "./groups";
 
 export const useUpdateStore = defineStore("updates", {
   state: () => {
@@ -42,8 +46,22 @@ export const useUpdateStore = defineStore("updates", {
   },
 
   actions: {
-    async deleteUpdate(id) {
-      deleteDoc(doc(db, "updates", id));
+    async deleteUpdate(payload) {
+      const updateRef = doc(
+        collection(doc(db, "groups", payload.groupId), "updates"),
+        payload.id
+      );
+
+      await deleteDoc(updateRef);
+      // Delete Image if ther is
+      if (payload.image) {
+        const imageRef = ref(
+          storage,
+          `groups/${payload.groupId}/updates/${payload.id}`
+        );
+        deleteObject(imageRef);
+      }
+
       Notify.create({
         message: "Post deleted.",
         icon: "check_circle_outline",
@@ -126,6 +144,20 @@ export const useUpdateStore = defineStore("updates", {
           updateId: updateData.id,
         });
       }
+      //Get all Members and Notify them
+      const notifStore = useNotifStore();
+      const groupStore = useGroupStore();
+      const memberIds = await groupStore.getMembers({
+        groupId: payload.group.id,
+      });
+      memberIds.forEach((id) => {
+        notifStore.addUserNotification({
+          type: "group-update",
+          groupId: payload.group.id,
+          from: auth.currentUser.uid,
+          userId: id,
+        });
+      });
       Loading.hide();
     },
 
@@ -145,6 +177,11 @@ export const useUpdateStore = defineStore("updates", {
       await updateDoc(docRef, {
         image: url,
       });
+
+      let index = this.updates.findIndex((item) => item.id == payload.updateId);
+      if (index > -1) {
+        this.updates[index].image = url;
+      }
     },
   },
 });

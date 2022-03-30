@@ -81,7 +81,7 @@
                 <q-img
                   :src="item.image"
                   fit="scale-down"
-                  style="border-radius: 8px; max-width: 280px"
+                  style="border-radius: 8px; max-width: 300px"
                 />
               </q-card-section>
 
@@ -98,11 +98,11 @@
                     Author
                   </q-badge>
                 </div>
-                <div class="row justify-around">
+                <div class="row">
                   <q-btn size="small" round flat icon="favorite_border" />
                   <q-btn
                     v-if="item.auth"
-                    @click="removeUpdate(item.id)"
+                    @click="removeUpdate(item)"
                     size="small"
                     round
                     flat
@@ -150,18 +150,17 @@ import { useDateFns } from "src/composables/date-fns";
 import { useUpdateStore } from "src/stores/updates";
 
 const $q = useQuasar();
-const create = ref("");
 
 const { relativeDate } = useDateFns();
 
 const updateStore = useUpdateStore();
 // Delete Update
-const removeUpdate = (id) => {
+const removeUpdate = (update) => {
   $q.dialog({
     title: "Confirm",
     message: "Are you sure you want to delete the post?",
     cancel: true,
-  }).onOk(() => updateStore.deleteUpdate(id));
+  }).onOk(() => updateStore.deleteUpdate(update));
 };
 
 const allUpdates = computed(() => updateStore.getAllUpdates);

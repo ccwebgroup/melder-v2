@@ -43,28 +43,32 @@ export const useNotifStore = defineStore("notifs", {
       );
       const q = query(notifRef, orderBy("createdAt"));
       const unsub = onSnapshot(notifRef, (snapshot) => {
-        snapshot.docChanges().forEach((change) => {
+        snapshot.docChanges().forEach(async (change) => {
           if (change.type === "added") {
+            console.log("added");
             const notif = change.doc.data();
             notif.id = change.doc.id;
-            if (notif.type === "group-invite") {
-              userStore.getUserProfile(notif.from).then((user) => {
-                notif.from = user;
-              });
-              groupStore.getGroupProfile(notif.groupId).then((group) => {
-                notif.group = group;
-              });
-              const index = this.notifications.findIndex(
-                (item) => item.id === notif.id
-              );
-              if (index === -1) {
-                this.notifications.unshift(notif);
-              }
+            const user = await userStore.getUserProfile(notif.from);
+            notif.from = user;
+            notif.group = await groupStore.getGroupProfile(notif.groupId);
+
+            if (!change.doc.metadata.hasPendingWrites) {
+              notif.createdAt = notif.createdAt.toDate();
+            } else {
+              notif.createdAt = new Date();
+            }
+            const index = this.notifications.findIndex(
+              (item) => item.id === notif.id
+            );
+            if (index === -1) {
+              this.notifications.unshift(notif);
             }
           }
+
           if (change.type === "modified") {
             console.log("modified");
           }
+
           if (change.type === "removed") {
             this.notifications = this.notifications.filter(
               (item) => item.id !== change.doc.id
@@ -84,6 +88,7 @@ export const useNotifStore = defineStore("notifs", {
         type: payload.type,
         from: authUserId,
         groupId: payload.groupId,
+        viewed: false,
       });
     },
   },

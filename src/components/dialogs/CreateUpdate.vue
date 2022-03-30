@@ -81,7 +81,8 @@
 
         <!-- Content -->
         <q-input
-          class="q-mt-sm"
+          class="q-mt-sm q-px-md"
+          style="border-radius: 5px"
           v-model="update.content"
           :dark="update.textWhite"
           :class="update.bgColor"

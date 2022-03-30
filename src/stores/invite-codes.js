@@ -13,7 +13,6 @@ import {
   deleteDoc,
   addDoc,
   query,
-  orderBy,
   where,
   limit,
   serverTimestamp,
@@ -103,8 +102,6 @@ export const useCodeStore = defineStore("inviteCodes", {
       });
       //Add group to users Joined Groups list
       userStore.addJoinedGroups({ userId: authUserId, groupId: notif.groupId });
-
-      await setDoc(joinedGroupsRef, {});
       // Delete Notif
       await notifStore.deleteNotif(notif);
       //Remove from the group's invite list

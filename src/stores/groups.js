@@ -201,6 +201,10 @@ export const useGroupStore = defineStore("groups", {
     },
 
     async getGroupProfile(groupId) {
+      if (groupId === undefined) {
+        this.router.push("/not-found");
+        return;
+      }
       const docRef = doc(db, "groups", groupId);
       const docSnap = await getDoc(docRef);
       const groupData = docSnap.data();

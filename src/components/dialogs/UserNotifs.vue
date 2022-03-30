@@ -19,10 +19,11 @@
 
         <!-- Notifications List -->
         <q-card
-          unelevated
+          class="q-mb-md"
+          flat
           v-for="notif in notifs"
           :key="notif.id"
-          :class="!notif.viewed ? 'bg-info-2' : ''"
+          :class="!notif.viewed ? 'bg-grey-2' : ''"
         >
           <q-item>
             <q-item-section avatar>
@@ -38,26 +39,34 @@
                 >{{ notif.from.displayName[0].toUpperCase() }}</q-avatar
               >
             </q-item-section>
+
             <q-item-section>
-              <q-item-label class="text-bold q-gutter-x-sm">
-                <span>{{ notif.from.displayName }}</span>
-                <span>&bull;</span>
-                <span class="text-body2">Mar 13</span>
+              <q-item-label class="text-subtitle2">
+                {{ notif.from.displayName }}
+              </q-item-label>
+
+              <q-item-label caption>
+                {{ relativeDate(notif.createdAt) }}
               </q-item-label>
               <q-item-label
-                caption
                 @click="$router.push('/group/' + notif.groupId)"
                 :class="notif.unread ? 'text-white' : ''"
               >
-                invited you to join in
-                <span class="text-bold">{{ notif.group.name }}</span>
+                <span v-show="notif.type == 'group-invite'"
+                  >you are invited to join in
+                </span>
+                <span v-show="notif.type == 'group-update'"
+                  >posted a new update in
+                </span>
+                <span class="text-primary">{{ notif.group.name }}</span>
               </q-item-label>
             </q-item-section>
 
-            <q-item-section side top :class="notif.unread ? 'text-white' : ''">
+            <q-item-section side top :class="notif.viewed ? 'text-white' : ''">
               <q-icon name="las la-ellipsis-h" />
             </q-item-section>
           </q-item>
+
           <div v-if="notif.type == 'group-invite'" class="q-pa-sm text-center">
             <q-btn
               @click="accept(notif)"
@@ -93,10 +102,14 @@ import { computed } from "vue";
 import { useNotifStore } from "src/stores/notifs";
 import { useCodeStore } from "src/stores/invite-codes";
 
+// Import Composables
+import { useDateFns } from "src/composables/date-fns";
+
 import { useDialogPluginComponent } from "quasar";
 const emit = defineEmits([...useDialogPluginComponent.emits]);
 const { dialogRef } = useDialogPluginComponent();
 
+const { relativeDate } = useDateFns();
 // Inivite
 const codeStore = useCodeStore();
 const accept = (notif) => codeStore.acceptInvite(notif),

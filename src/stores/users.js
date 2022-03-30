@@ -118,6 +118,8 @@ export const useUserStore = defineStore("users", {
         collection(doc(db, "users", payload.userId), "joinedGroups"),
         payload.groupId
       );
+
+      await setDoc(joinedGroupsRef, {});
     },
 
     async addGroupManage(payload) {
