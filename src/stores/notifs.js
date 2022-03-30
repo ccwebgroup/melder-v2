@@ -45,7 +45,6 @@ export const useNotifStore = defineStore("notifs", {
       const unsub = onSnapshot(notifRef, (snapshot) => {
         snapshot.docChanges().forEach(async (change) => {
           if (change.type === "added") {
-            console.log("added");
             const notif = change.doc.data();
             notif.id = change.doc.id;
             const user = await userStore.getUserProfile(notif.from);

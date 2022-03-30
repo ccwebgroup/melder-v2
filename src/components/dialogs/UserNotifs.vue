@@ -48,17 +48,23 @@
               <q-item-label caption>
                 {{ relativeDate(notif.createdAt) }}
               </q-item-label>
-              <q-item-label
-                @click="$router.push('/group/' + notif.groupId)"
-                :class="notif.unread ? 'text-white' : ''"
-              >
+              <q-item-label :class="notif.unread ? 'text-white' : ''">
                 <span v-show="notif.type == 'group-invite'"
                   >you are invited to join in
                 </span>
                 <span v-show="notif.type == 'group-update'"
                   >posted a new update in
                 </span>
-                <span class="text-primary">{{ notif.group.name }}</span>
+                <span
+                  @click="
+                    $router.push({
+                      path: '/group/' + notif.group.name.split(' ').join(''),
+                      query: { id: notif.group.id },
+                    })
+                  "
+                  class="text-primary"
+                  >{{ notif.group.name }}</span
+                >
               </q-item-label>
             </q-item-section>
 

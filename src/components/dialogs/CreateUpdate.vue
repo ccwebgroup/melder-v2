@@ -81,6 +81,8 @@
 
         <!-- Content -->
         <q-input
+          @focus="hidePalette = true"
+          @blur="hidePalette = false"
           class="q-mt-sm q-px-md"
           style="border-radius: 5px"
           v-model="update.content"
@@ -113,7 +115,34 @@
       </q-card-section>
 
       <q-card-section class="fixed-bottom q-gutter-y-md">
-        <q-virtual-scroll
+        <q-fab
+          v-show="!hidePalette"
+          push
+          color="dark"
+          glossy
+          icon="color_lens"
+          direction="right"
+        >
+          <!-- <q-card
+            v-for="(item, i) in backgrounds"
+            @click="setBgColor(item.color)"
+            :class="item.color"
+            :key="i"
+            style="
+              max-width: 50px;
+              height: 40px;
+              margin-right: 5px;
+              border-radius: 8px;
+            "
+          ></q-card> -->
+          <q-fab-action
+            v-for="(item, i) in backgrounds"
+            :key="i"
+            :class="item.color"
+            @click="setBgColor(item.color)"
+          />
+        </q-fab>
+        <!-- <q-virtual-scroll
           :items="backgrounds"
           virtual-scroll-horizontal
           class="hide-scrollbar"
@@ -133,7 +162,7 @@
               <q-card-section> </q-card-section>
             </q-card>
           </template>
-        </q-virtual-scroll>
+        </q-virtual-scroll> -->
 
         <input
           @change="fileUploaded"
@@ -170,13 +199,12 @@ const $q = useQuasar();
 const backgrounds = [
   { color: "bg-indigo" },
   { color: "bg-teal" },
-  { color: "bg-red" },
-  { color: "bg-blue" },
   { color: "bg-purple" },
   { color: "bg-brown" },
   { color: "bg-white" },
 ];
 
+const hidePalette = ref(false);
 const updateStore = useUpdateStore();
 const update = reactive({
   bgColor: "bg-white",
