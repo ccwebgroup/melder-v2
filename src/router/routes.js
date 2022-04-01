@@ -100,6 +100,19 @@ const routes = [
     ],
   },
 
+  // Update ROutes
+  {
+    path: "/update/",
+    name: "Update",
+    component: () => import("layouts/UpdateLayout.vue"),
+    children: [
+      {
+        path: "/update/view",
+        component: () => import("pages/updates/ViewUpdate.vue"),
+      },
+    ],
+  },
+
   // Always leave this as last one,
   // but you can also remove it
   {

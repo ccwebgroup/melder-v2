@@ -20,10 +20,11 @@ import {
   ref,
   uploadBytes,
   getDownloadURL,
-  deleteObject,
+  storageDeleteObj,
 } from "src/boot/firebase";
 
 //Other Stores
+import { useUserStore } from "./users";
 import { useNotifStore } from "./notifs";
 import { useGroupStore } from "./groups";
 
@@ -31,6 +32,8 @@ export const useUpdateStore = defineStore("updates", {
   state: () => {
     return {
       updates: [],
+      update: {},
+      messages: [],
     };
   },
 
@@ -42,6 +45,10 @@ export const useUpdateStore = defineStore("updates", {
         }
       });
       return state.updates.sort((a, b) => b.createdAt - a.createdAt);
+    },
+
+    getAllMessages: (state) => {
+      return state.messages.sort((a, b) => a.createdAt - b.createdAt);
     },
   },
 
@@ -59,13 +66,68 @@ export const useUpdateStore = defineStore("updates", {
           storage,
           `groups/${payload.groupId}/updates/${payload.id}`
         );
-        deleteObject(imageRef);
+        storageDeleteObj(imageRef);
       }
 
       Notify.create({
         message: "Post deleted.",
         icon: "check_circle_outline",
       });
+    },
+
+    async getMessages(payload) {
+      this.messages = [];
+      const userStore = useUserStore();
+      const groupRef = doc(db, "groups", payload.groupId);
+      const updateRef = doc(groupRef, "updates", payload.id);
+      const messageRef = collection(updateRef, "messages");
+
+      const unsub = onSnapshot(messageRef, (snapshot) => {
+        snapshot.docChanges().forEach(async (change) => {
+          const authUserId = auth.currentUser.uid;
+          const messageData = change.doc.data();
+          messageData.id = change.doc.id;
+          const user = await userStore.getUserProfile(messageData.authorId);
+          messageData.author = user;
+          if (messageData.authorId == authUserId) {
+            messageData.sent = true;
+          } else {
+            messageData.sent = false;
+          }
+
+          if (change.type === "added") {
+            if (!change.doc.metadata.hasPendingWrites) {
+              messageData.createdAt = messageData.createdAt.toDate();
+            } else {
+              messageData.createdAt = new Date();
+            }
+
+            const index = this.messages.findIndex(
+              (item) => item.id === change.doc.id
+            );
+            if (index === -1) {
+              this.messages.push(messageData);
+            }
+          }
+        });
+      });
+    },
+
+    async getUpdate(payload) {
+      const groupRef = doc(db, "groups", payload.groupId);
+      const updateDoc = await getDoc(
+        doc(collection(groupRef, "updates"), payload.id)
+      );
+      const updateData = updateDoc.data();
+      const group = await getDoc(groupRef);
+      const creator = await getDoc(doc(db, "users", updateData.creatorId));
+
+      this.update = {
+        ...updateData,
+        id: updateDoc.id,
+        creator: creator.data(),
+        group: group.data(),
+      };
     },
 
     async getAllUpdatesAllGroups() {
@@ -119,7 +181,83 @@ export const useUpdateStore = defineStore("updates", {
       });
     },
 
+    async getUpdatesJoinedGroups() {
+      const authUserId = auth.currentUser.uid;
+      // Get all groups manage
+      const groupsManageRef = collection(
+        doc(db, "users", authUserId),
+        "joinedGroups"
+      );
+      const groupSnap = await getDocs(groupsManageRef);
+      groupSnap.forEach(async (groupDoc) => {
+        let groupId = groupDoc.id;
+        let groupRef = doc(db, "groups", groupId);
+        const docSnap = await getDoc(groupRef);
+        let groupData = docSnap.data();
+        //Get all updtes of a group
+        const q = query(collection(groupRef, "updates"), orderBy("createdAt"));
+        const unsub = onSnapshot(q, (snapshots) => {
+          snapshots.docChanges().forEach(async (change) => {
+            const updateData = change.doc.data();
+            if (change.type === "added") {
+              let userSnap = await getDoc(
+                doc(db, "users", updateData.creatorId)
+              );
+              updateData.creator = userSnap.data();
+              updateData.group = groupData;
+              updateData.id = change.doc.id;
+              if (!change.doc.metadata.hasPendingWrites) {
+                updateData.createdAt = updateData.createdAt.toDate();
+              } else {
+                updateData.createdAt = new Date();
+              }
+              let index = this.updates.findIndex(
+                (item) => item.id == updateData.id
+              );
+              if (index == -1) {
+                this.updates.unshift(updateData);
+              }
+            }
+
+            if (change.type === "modified") {
+            }
+
+            if (change.type === "removed") {
+              this.updates = this.updates.filter(
+                (item) => item.id !== change.doc.id
+              );
+            }
+          });
+        });
+      });
+    },
+
     async updateUpdate() {},
+
+    async addMessage(payload) {
+      const userStore = useUserStore();
+      const groupRef = doc(db, "groups", payload.groupId);
+      const updateRef = doc(groupRef, "updates", payload.updateId);
+      const authUserId = auth.currentUser.uid;
+      const messageRef = collection(updateRef, "messages");
+      await addDoc(messageRef, {
+        createdAt: serverTimestamp(),
+        authorId: authUserId,
+        text: [payload.text],
+      });
+      // const user = await userStore.getUserProfile(authUserId);
+      // const newMessage = {
+      //   createdAt: new Date(),
+      //   author: user,
+      //   text: [payload.text],
+      // };
+
+      // if (this.update.messages) {
+      //   this.update.messages.push(newMessage);
+      // } else {
+      //   this.update.messages = [newMessage];
+      // }
+    },
 
     async addGroupUpdate(payload) {
       Loading.show();

@@ -40,7 +40,15 @@
               <!-- Group Info -->
               <q-card-section class="q-pa-none">
                 <q-item :dark="item.textWhite">
-                  <q-item-section avatar>
+                  <q-item-section
+                    @click="
+                      $router.push({
+                        path: '/group/' + item.group.name.split(' ').join(''),
+                        query: { id: item.groupId },
+                      })
+                    "
+                    avatar
+                  >
                     <q-avatar>
                       <img :src="item.group.photoURL" alt="Group Avatar" />
                     </q-avatar>
@@ -72,7 +80,15 @@
               </q-card-section>
 
               <!-- Update Content -->
-              <q-card-section class="q-py-sm">
+              <q-card-section
+                @click="
+                  $router.push({
+                    path: '/update/view',
+                    query: { id: item.id, groupId: item.groupId },
+                  })
+                "
+                class="q-py-sm"
+              >
                 <div class="text-body2">{{ item.content }}</div>
               </q-card-section>
 
@@ -90,7 +106,7 @@
                 :class="item.textWhite ? 'bg-overlay' : ''"
               >
                 <div class="row q-gutter-x-sm q-py-xs">
-                  <q-avatar size="sm">
+                  <q-avatar v-if="item.creator.photoURL" size="sm">
                     <img :src="item.creator.photoURL" alt="" />
                   </q-avatar>
                   <div class="text-caption">{{ item.creator.displayName }}</div>
@@ -171,6 +187,7 @@ const dialogCreate = () => {
 };
 onBeforeMount(() => {
   updateStore.getAllUpdatesAllGroups();
+  updateStore.getUpdatesJoinedGroups();
 });
 
 //Loading State
