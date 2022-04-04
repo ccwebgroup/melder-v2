@@ -139,14 +139,14 @@
               </q-chat-message>
             </q-card-section>
 
-            <q-btn
+            <!-- <q-btn
               class="absolute"
               style="bottom: 40px; left: 10px"
               padding="xs xs"
               fab
               icon="keyboard_arrow_down"
               color="accent"
-            />
+            /> -->
           </q-card>
         </template>
       </q-splitter>

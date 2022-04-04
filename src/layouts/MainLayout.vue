@@ -2,39 +2,38 @@
   <q-layout view="lHh Lpr lFf">
     <q-header reveal :class="$q.dark.isActive ? 'bg-dark' : 'bg-white'">
       <q-toolbar :class="$q.dark.isActive ? '' : 'text-dark'">
-        <q-avatar size="30px" class="q-mr-lg">
-          <img src="~assets/melder-logo.svg" />
-        </q-avatar>
-        <div class="text-h6">{{ $route.name }}</div>
-        <q-space />
-        <div class="q-gutter-x-sm q-my-md">
-          <q-btn
-            @click="notifDialog"
-            padding="none"
-            size="lg"
-            dense
-            flat
-            round
-            icon="las la-bell"
-          >
-            <q-badge
-              v-if="notifs.length"
-              floating
-              color="red"
-              rounded
-              :label="notifs.length"
-            />
-          </q-btn>
-          <q-btn
-            padding="none"
-            @click="menuDialog = true"
-            dense
-            flat
-            round
-            size="lg"
-            icon="las la-user-circle"
+        <q-toolbar-title>
+          <q-avatar v-show="$route.name == 'Home'" size="40px" class="q-mr-lg">
+            <img src="~assets/melder-logo.svg" />
+          </q-avatar>
+          <span v-show="$route.name != 'Home'"> {{ $route.name }}</span>
+        </q-toolbar-title>
+        <q-btn
+          @click="notifDialog"
+          padding="none"
+          size="lg"
+          dense
+          flat
+          round
+          icon="las la-bell"
+        >
+          <q-badge
+            v-if="notifs.length"
+            floating
+            color="red"
+            rounded
+            :label="notifs.length"
           />
-        </div>
+        </q-btn>
+        <q-btn
+          padding="none"
+          @click="menuDialog = true"
+          dense
+          flat
+          round
+          size="lg"
+          icon="las la-user-circle"
+        />
       </q-toolbar>
     </q-header>
 

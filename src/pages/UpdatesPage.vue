@@ -2,8 +2,8 @@
   <q-page>
     <div class="q-px-sm">
       <div class="q-pb-md">
-        <div class="text-h6">What's new?</div>
-        <div class="text-body2">Your groups latest news</div>
+        <div class="text-subtitle1">Check this out</div>
+        <div class="text-caption">Your groups latest news</div>
       </div>
       <div v-show="!loading">
         <!-- If there are no updates yet -->
@@ -63,7 +63,12 @@
                   </q-item-section>
 
                   <q-item-section side>
-                    <q-btn flat round icon="push_pin" />
+                    <q-btn
+                      @click="openUpdateMenu(item)"
+                      flat
+                      round
+                      icon="more_horiz"
+                    />
                   </q-item-section>
                 </q-item>
               </q-card-section>
@@ -115,7 +120,7 @@
                   </q-badge>
                 </div>
                 <div class="row">
-                  <q-btn size="small" round flat icon="favorite_border" />
+                  <!-- <q-btn size="small" round flat icon="favorite_border" /> -->
                   <q-btn
                     v-if="item.auth"
                     @click="removeUpdate(item)"
@@ -131,6 +136,38 @@
         </q-virtual-scroll>
       </div>
     </div>
+
+    <!-- Update Dialog -->
+    <q-dialog
+      v-model="updateMenu"
+      transition-show="slide-up"
+      transition-hide="slide-down"
+      full-width
+      position="bottom"
+    >
+      <q-card class="border-top-rounded q-pa-md">
+        <q-list>
+          <q-item @click="pinUpdate" clickable v-close-popup>
+            <q-item-section avatar>
+              <q-icon name="push_pin" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="text-subtitle1"
+                >Pin to homepage</q-item-label
+              >
+            </q-item-section>
+          </q-item>
+          <q-item>
+            <q-item-section avatar>
+              <q-icon name="cancel_presentation" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="text-subtitle1">Hide Post</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </q-card>
+    </q-dialog>
 
     <!-- place QPageScroller at end of page -->
     <q-page-scroller position="top" :scroll-offset="150" :offset="[18, 40]">
@@ -170,6 +207,19 @@ const $q = useQuasar();
 const { relativeDate } = useDateFns();
 
 const updateStore = useUpdateStore();
+
+const updateMenu = ref(false);
+const updateData = ref();
+const openUpdateMenu = (update) => {
+  updateData.value = update;
+  updateMenu.value = true;
+};
+
+// Pinn update to Homepage
+const pinUpdate = (update) => {
+  updateStore.addPinnedUpdate(updateData.value);
+};
+
 // Delete Update
 const removeUpdate = (update) => {
   $q.dialog({

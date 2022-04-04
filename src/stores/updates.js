@@ -12,6 +12,7 @@ import {
   getDoc,
   updateDoc,
   deleteDoc,
+  setDoc,
   serverTimestamp,
   query,
   orderBy,
@@ -34,6 +35,7 @@ export const useUpdateStore = defineStore("updates", {
       updates: [],
       update: {},
       messages: [],
+      pinnedUpdates: [],
     };
   },
 
@@ -53,6 +55,24 @@ export const useUpdateStore = defineStore("updates", {
   },
 
   actions: {
+    async deletePinnedUpdate(update) {
+      const authUserId = auth.currentUser.uid;
+      const pinnedRef = doc(
+        collection(doc(db, "users", authUserId), "pinned"),
+        update.id
+      );
+      await deleteDoc(pinnedRef);
+      this.pinnedUpdates = this.pinnedUpdates.filter(
+        (item) => item.id != update.id
+      );
+
+      Notify.create({
+        type: "positive",
+        icon: "check_circle",
+        message: "Unpinned post",
+      });
+    },
+
     async deleteUpdate(payload) {
       const updateRef = doc(
         collection(doc(db, "groups", payload.groupId), "updates"),
@@ -232,10 +252,54 @@ export const useUpdateStore = defineStore("updates", {
       });
     },
 
+    async getPinnedUpdates() {
+      const authUserId = auth.currentUser.uid;
+      const pinnedColRef = collection(doc(db, "users", authUserId), "pinned");
+      const pinnedSnap = await getDocs(pinnedColRef);
+      pinnedSnap.forEach(async (pinnedDoc) => {
+        const pinnedData = { ...pinnedDoc.data(), updateId: pinnedDoc.id };
+        const updateRef = doc(
+          collection(doc(db, "groups", pinnedData.groupId), "updates"),
+          pinnedDoc.id
+        );
+        const updateSnap = await getDoc(updateRef);
+        const updateData = updateSnap.data();
+        updateData.id = updateSnap.id;
+        let userSnap = await getDoc(doc(db, "users", updateData.creatorId));
+        updateData.creator = userSnap.data();
+        let groupSnap = await getDoc(doc(db, "groups", updateData.groupId));
+        updateData.group = groupSnap.data();
+        updateData.createdAt = updateData.createdAt.toDate();
+        let index = this.pinnedUpdates.findIndex(
+          (item) => item.id == updateData.id
+        );
+        if (index == -1) {
+          this.pinnedUpdates.push(updateData);
+        }
+      });
+    },
+
     async updateUpdate() {},
 
+    async addPinnedUpdate(update) {
+      const authUserId = auth.currentUser.uid;
+      const pinnedColRef = doc(
+        collection(doc(db, "users", authUserId), "pinned"),
+        update.id
+      );
+      await setDoc(pinnedColRef, {
+        type: "update",
+        groupId: update.groupId,
+      });
+
+      Notify.create({
+        icon: "push_pin",
+        type: "positive",
+        message: "Update pinned to homepage",
+      });
+    },
+
     async addMessage(payload) {
-      const userStore = useUserStore();
       const groupRef = doc(db, "groups", payload.groupId);
       const updateRef = doc(groupRef, "updates", payload.updateId);
       const authUserId = auth.currentUser.uid;
@@ -245,18 +309,6 @@ export const useUpdateStore = defineStore("updates", {
         authorId: authUserId,
         text: [payload.text],
       });
-      // const user = await userStore.getUserProfile(authUserId);
-      // const newMessage = {
-      //   createdAt: new Date(),
-      //   author: user,
-      //   text: [payload.text],
-      // };
-
-      // if (this.update.messages) {
-      //   this.update.messages.push(newMessage);
-      // } else {
-      //   this.update.messages = [newMessage];
-      // }
     },
 
     async addGroupUpdate(payload) {

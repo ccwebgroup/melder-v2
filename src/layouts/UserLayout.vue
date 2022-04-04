@@ -2,7 +2,7 @@
   <q-layout>
     <q-header :class="$q.dark.isActive ? 'bg-dark' : 'bg-white'">
       <q-toolbar :class="$q.dark.isActive ? '' : 'text-dark'">
-        <q-btn @click="$router.go(-1)" no-caps flat icon="arrow_back" />
+        <q-btn @click="$router.go(-1)" round flat icon="arrow_back" />
       </q-toolbar>
     </q-header>
 

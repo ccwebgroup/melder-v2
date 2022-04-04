@@ -56,7 +56,7 @@
 
         <!-- Groups Manage -->
         <q-card-section class="q-py-none">
-          <div class="text-subtitle2 text-bold">Groups</div>
+          <div class="text-subtitle2 text-bold">Groups Manage</div>
           <!-- If there are no groups show message to create one -->
           <div v-if="!groupsManage.length">
             <q-btn
@@ -80,7 +80,12 @@
             <template v-slot="{ item, index }">
               <div class="q-pa-sm" :key="index" :class="item.class">
                 <q-avatar
-                  @click="$router.push('/group/' + item.id)"
+                  @click="
+                    $router.push({
+                      path: '/group/' + item.name.split(' ').join(''),
+                      query: { id: item.id },
+                    })
+                  "
                   size="60px"
                 >
                   <img :src="item.photoURL" alt="Group Avatar" />
@@ -291,6 +296,7 @@ const addLink = (platform) => {
 const saveSocialLink = () => {
   userStore.updateUserProfile({ link: social_links });
 };
+
 const openLink = (link) => {
   let url = "https://" + link.platform.toLowerCase() + ".com/";
   openURL(url + link.username);

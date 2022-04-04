@@ -6,6 +6,7 @@ import {
   auth,
   doc,
   setDoc,
+  updateDoc,
   deleteDoc,
   collection,
   serverTimestamp,
@@ -26,12 +27,27 @@ export const useNotifStore = defineStore("notifs", {
   },
 
   actions: {
+    async markAsViewed(notif) {
+      const notifRef = doc(
+        collection(doc(db, "users", auth.currentUser.uid), "notifications"),
+        notif.id
+      );
+      updateDoc(notifRef, { viewed: true });
+      const index = this.notifications.findIndex((item) => item.id == notif.id);
+      if (index > -1) {
+        this.notifications[index].viewed = true;
+      }
+    },
+
     async deleteNotif(notif) {
       const notifRef = doc(
         collection(doc(db, "users", auth.currentUser.uid), "notifications"),
         notif.id
       );
       deleteDoc(notifRef);
+      this.notifications = this.notifications.filter(
+        (item) => item.id != notif.id
+      );
     },
 
     async getNotifications() {

@@ -46,7 +46,7 @@ export const useUserStore = defineStore("users", {
       });
 
       // Change avatar or profile photo
-      if (payload.photo.src) {
+      if (payload.photo && payload.photo.src) {
         await this.addUserAvatar({
           id: authUser.uid,
           photo: payload.photo,
