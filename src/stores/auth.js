@@ -68,9 +68,8 @@ export const useAuthStore = defineStore("auth", {
 
           this.router.replace("/home");
         }
-      } catch (err) {
-        const errorCode = err.code;
-        console.log(errorCode);
+      } catch (error) {
+        const errorCode = error.code;
         let errMessage;
         switch (errorCode) {
           case "auth/email-already-in-use":
