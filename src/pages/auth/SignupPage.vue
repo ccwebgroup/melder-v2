@@ -2,7 +2,13 @@
   <q-page padding>
     <div class="q-mx-auto q-pa-lg text-center">
       <div class="q-my-md">
-        <q-btn color="red" outline round icon="fab fa-google" />
+        <q-btn
+          @click="signInGoogle"
+          color="red"
+          outline
+          round
+          icon="fab fa-google"
+        />
       </div>
       <div class="text-subtitle2 q-mb-sm">or</div>
       <div class="text-h6">Sign up with email</div>
@@ -118,4 +124,6 @@ watch(userDetails, () => {
 const signUp = async () => {
   const user = await authStore.signUpUser(userDetails);
 };
+
+const signInGoogle = () => authStore.singInWithProvider("google");
 </script>

@@ -7,6 +7,9 @@
         src="~assets/melder-logo.svg"
         style="width: 120px"
       />
+
+      <div id="firebaseui-auth-container"></div>
+
       <q-form @submit="login" class="q-gutter-y-md q-mt-md">
         <q-input
           dense
@@ -67,11 +70,13 @@
 import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
 
+import firebase from "firebase/compat/app";
+import * as firebaseui from "firebaseui";
+import "firebaseui/dist/firebaseui.css";
+
 // Import Stores
 import { useAuthStore } from "src/stores/auth";
 const authStore = useAuthStore();
-
-const router = useRouter();
 
 const isPwd = ref(true);
 const credentials = reactive({

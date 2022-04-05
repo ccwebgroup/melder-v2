@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 // Quasar Plugins
 import { Loading, Dialog } from "quasar";
 
+import { GoogleAuthProvider } from "firebase/auth";
 // Firebase
 import {
   auth,
@@ -10,6 +11,7 @@ import {
   createUserWithEmailAndPassword,
   reauthenticateWithCredential,
   EmailAuthProvider,
+  signInWithPopup,
 } from "boot/firebase";
 
 //Other Stores
@@ -37,6 +39,63 @@ export const useAuthStore = defineStore("auth", {
     async logoutUser() {
       await auth.signOut();
       this.router.replace("/login");
+    },
+
+    async singInWithProvider(payload) {
+      const userStore = useUserStore();
+      let provider;
+      if (payload == "google") {
+        provider = new GoogleAuthProvider();
+      }
+
+      try {
+        const result = await signInWithPopup(auth, provider);
+        if (payload == "google") {
+          const credential = GoogleAuthProvider.credentialFromResult(result);
+          const token = credential.accessToken; // MIght need for google drive reserve this code
+        }
+
+        // If user successfully signed up
+        if (result.user) {
+          const user = result.user;
+          //Add a User Profile
+          userStore.addUserProfile({
+            id: user.uid,
+            displayName: user.displayName,
+            email: user.email,
+            photoURL: null,
+          });
+
+          this.router.replace("/home");
+        }
+      } catch (err) {
+        const errorCode = err.code;
+        console.log(errorCode);
+        let errMessage;
+        switch (errorCode) {
+          case "auth/email-already-in-use":
+            errMessage = "Email is already registered!";
+            break;
+          case "auth/invalid-email":
+            errMessage = "Invalid Email.";
+            break;
+          case "auth/operation-not-allowed":
+            errMessage = "Operation is not allowed.";
+            break;
+          case "auth/weak-password":
+            errMessage =
+              "Password is weak. Try putting some symbols and numbers. Should be 8 digits or more.";
+            break;
+        }
+
+        // A Dialog to display Sign up Error
+        if (errorCode != "auth/popup-closed-by-user") {
+          Dialog.create({
+            title: "Sign in Error",
+            message: errMessage,
+          });
+        }
+      }
     },
 
     async loginUser(payload) {

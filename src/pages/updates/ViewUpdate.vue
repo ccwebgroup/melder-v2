@@ -5,6 +5,7 @@
         <!-- Update Content Section -->
         <template v-slot:before>
           <q-card
+            v-if="Object.keys(updateData).length !== 0"
             square
             :dark="updateData.textWhite"
             :class="updateData.bgColor"
@@ -112,6 +113,7 @@
 
             <!-- messages -->
             <q-card-section
+              v-if="messagesData.length"
               ref="messagesDiv"
               style="overflow-y: auto; height: 600px"
             >
@@ -138,15 +140,6 @@
                 </template>
               </q-chat-message>
             </q-card-section>
-
-            <!-- <q-btn
-              class="absolute"
-              style="bottom: 40px; left: 10px"
-              padding="xs xs"
-              fab
-              icon="keyboard_arrow_down"
-              color="accent"
-            /> -->
           </q-card>
         </template>
       </q-splitter>

@@ -20,6 +20,7 @@
             width: 280,
             height: 280,
           }"
+          style="max-height: 400px"
           image-restriction="stencil"
           stencil-component="circle-stencil"
           ref="cropper"

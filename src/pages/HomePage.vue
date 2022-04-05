@@ -1,6 +1,7 @@
 <template>
   <q-page padding>
     <div class="text-h6">Pinned Post</div>
+
     <div v-if="pinnedUpdates.length">
       <q-carousel
         v-model="slide"
@@ -44,12 +45,35 @@
       </q-carousel>
     </div>
 
-    <q-card flat>
+    <div v-else>
+      <!-- No Pinned post? Show illustration -->
+      <q-img
+        class="q-mt-md"
+        src="~assets/illu/augmented_reality_re_f0qd.svg"
+        style="max-width: 600px"
+      />
+      <div class="flex flex-center">
+        <q-btn
+          class="q-mt-md"
+          color="primary"
+          to="/updates"
+          rounded
+          unelevated
+          no-caps
+          label="Check latest news"
+        />
+      </div>
+      <div class="text-center text-h6 text-grey q-mt-sm">
+        Nothing to display...
+      </div>
+    </div>
+
+    <q-card flat v-if="pinnedUpdates.length">
       <q-card-section>
         <div class="text-subtitle1 q-mb-sm">
           Manage <q-icon size="15px" name="push_pin" />
         </div>
-        <q-list dense v-if="pinnedUpdates.length">
+        <q-list dense>
           <q-item v-for="item in pinnedUpdates" :key="item.id">
             <q-item-section avatar>
               <q-avatar size="md">
@@ -113,6 +137,5 @@ const pinnedUpdates = computed(() => updateStore.pinnedUpdates);
 
 onBeforeMount(() => {
   updateStore.getPinnedUpdates();
-  console.log("before mounted");
 });
 </script>

@@ -13,7 +13,7 @@
         >
           <q-icon size="lg" color="primary" name="las la-parachute-box" />
           <div class="text-body1">No groups yet.</div>
-          <div>Make a group and gather your members!</div>
+          <div class="q-px-md">Create a group and gather your members!</div>
           <q-btn
             to="/group/create"
             class="q-mt-sm"
@@ -181,7 +181,13 @@
     </q-page-scroller>
 
     <q-page-sticky expand position="bottom-right" :offset="[18, 18]">
-      <q-btn @click="dialogCreate" fab icon="add" color="accent" />
+      <q-btn
+        v-show="groupsManage.length"
+        @click="dialogCreate"
+        fab
+        icon="add"
+        color="accent"
+      />
     </q-page-sticky>
 
     <q-inner-loading :showing="loading">
@@ -201,12 +207,15 @@ import { useDateFns } from "src/composables/date-fns";
 
 // Import Stores
 import { useUpdateStore } from "src/stores/updates";
+import { useGroupStore } from "src/stores/groups";
 
 const $q = useQuasar();
 
 const { relativeDate } = useDateFns();
 
 const updateStore = useUpdateStore();
+const groupStore = useGroupStore();
+const groupsManage = computed(() => groupStore.groupsManage);
 
 const updateMenu = ref(false);
 const updateData = ref();
