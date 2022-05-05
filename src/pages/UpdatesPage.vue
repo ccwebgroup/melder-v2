@@ -1,5 +1,5 @@
 <template>
-  <q-page>
+  <q-page padding>
     <div class="q-px-sm">
       <div class="q-pb-md">
         <div class="text-subtitle1">Check this out</div>
@@ -34,8 +34,9 @@
           <template v-slot="{ item }">
             <q-card
               :dark="item.textWhite"
-              class="q-mb-md"
+              class="q-mb-md q-mx-auto"
               :class="item.bgColor"
+              style="max-width: 600px"
             >
               <!-- Group Info -->
               <q-card-section class="q-pa-none">
@@ -102,7 +103,7 @@
                 <q-img
                   :src="item.image"
                   fit="scale-down"
-                  style="border-radius: 8px; max-width: 300px"
+                  style="border-radius: 8px; max-width: 500px"
                 />
               </q-card-section>
 

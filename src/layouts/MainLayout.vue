@@ -1,14 +1,20 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
+  <q-layout view="lHr LpR lFr">
     <q-header reveal :class="$q.dark.isActive ? 'bg-dark' : 'bg-white'">
       <q-toolbar :class="$q.dark.isActive ? '' : 'text-dark'">
         <q-toolbar-title>
-          <q-avatar v-show="$route.name == 'Home'" size="40px" class="q-mr-lg">
+          <q-avatar
+            v-if="$q.platform.is.mobile"
+            v-show="$route.name == 'Home'"
+            size="40px"
+            class="q-mr-lg"
+          >
             <img src="~assets/melder-logo.svg" />
           </q-avatar>
           <span v-show="$route.name != 'Home'"> {{ $route.name }}</span>
         </q-toolbar-title>
         <q-btn
+          v-if="$q.platform.is.mobile"
           @click="notifDialog"
           padding="none"
           size="lg"
@@ -26,6 +32,7 @@
           />
         </q-btn>
         <q-btn
+          v-if="$q.platform.is.mobile"
           padding="none"
           @click="menuDialog = true"
           dense
@@ -38,15 +45,60 @@
     </q-header>
 
     <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
-      <q-list>
-        <q-item-label header>Melder Logo</q-item-label>
+      <q-list class="q-pl-xl">
+        <q-item class="q-mx-md">
+          <q-item-label header>
+            <q-avatar size="40px" class="q-mr-lg">
+              <img src="~assets/melder-logo.svg" />
+            </q-avatar>
+          </q-item-label>
+        </q-item>
 
-        <!-- <EssentialLink
+        <EssentialLink
           v-for="link in essentialLinks"
-          :key="link.title"
+          :key="link.path"
           v-bind="link"
-        />-->
+        />
+
+        <q-item
+          class="q-mt-xl q-mx-md curve-borders"
+          clickable
+          to="/user/profile"
+        >
+          <q-item-section avatar>
+            <q-avatar>
+              <img :src="authUser.photoURL" alt="" />
+            </q-avatar>
+          </q-item-section>
+
+          <q-item-section>
+            <q-item-label class="text-subtitle1">{{
+              authUser.displayName
+            }}</q-item-label>
+            <q-item-label
+              caption
+              :class="$q.dark.isActive ? 'text-secondary' : 'text-primary'"
+              >Manage Your Profile</q-item-label
+            >
+          </q-item-section>
+        </q-item>
       </q-list>
+
+      <q-btn
+        class="q-mx-xl absolute-bottom"
+        style="bottom: 60px"
+        padding="xs 60px"
+        @click="logOut"
+        outline
+        rounded
+        no-caps
+        color="primary"
+        label="Sign Out"
+      />
+    </q-drawer>
+
+    <q-drawer show-if-above v-model="rightDrawerOpen" side="right" bordered>
+      <!-- drawer content -->
     </q-drawer>
 
     <q-page-container>
@@ -55,38 +107,22 @@
       </router-view>
     </q-page-container>
 
-    <q-footer :class="$q.dark.isActive ? 'bg-dark' : 'bg-white text-dark'">
+    <q-footer
+      v-if="$q.platform.is.mobile"
+      :class="$q.dark.isActive ? 'bg-dark' : 'bg-white text-dark'"
+    >
       <q-tabs
         indicator-color="transparent"
         :active-color="$q.dark.isActive ? 'secondary' : 'primary'"
       >
         <q-route-tab
-          to="/updates"
+          v-for="link in essentialLinks"
+          :key="link.path"
+          :to="link.path"
           no-caps
           name="update"
           icon="ti-announcement"
           label="Updates"
-        />
-        <q-route-tab
-          to="/groups"
-          no-caps
-          name="groups"
-          icon="ti-id-badge"
-          label="Groups"
-        />
-        <q-route-tab
-          to="/files"
-          no-caps
-          name="files"
-          icon="ti-folder"
-          label="Files"
-        />
-        <q-route-tab
-          to="/home"
-          no-caps
-          name="home"
-          icon="ti-home"
-          label="Home"
         />
       </q-tabs>
     </q-footer>
@@ -158,6 +194,7 @@ import { ref, computed, onBeforeMount } from "vue";
 import { useQuasar } from "quasar";
 
 // Import components
+import EssentialLink from "src/components/EssentialLink.vue";
 import UserNotifs from "src/components/dialogs/UserNotifs.vue";
 
 // Import Stores
@@ -166,8 +203,15 @@ import { useNotifStore } from "src/stores/notifs";
 import { useCodeStore } from "src/stores/invite-codes";
 
 const leftDrawerOpen = ref(false),
+  rightDrawerOpen = ref(false),
   menuDialog = ref(false),
   $q = useQuasar();
+
+const essentialLinks = [
+  { path: "/home", title: "Home", icon: "las la-home" },
+  { path: "/updates", title: "Updates", icon: "las la-bullhorn" },
+  { path: "/groups", title: "Groups", icon: "las la-users" },
+];
 
 /* Notifications Section
  ************************

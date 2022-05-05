@@ -3,9 +3,6 @@ const routes = [
   {
     path: "/auth",
     component: () => import("layouts/AuthLayout.vue"),
-    meta: {
-      requiresAuth: true,
-    },
     children: [
       { path: "/login", component: () => import("pages/auth/LoginPage.vue") },
       {
@@ -40,30 +37,12 @@ const routes = [
         name: "Updates",
         component: () => import("pages/UpdatesPage.vue"),
       },
-      {
-        path: "/files",
-        name: "Files",
-        component: () => import("pages/FilesPage.vue"),
-      },
+      // {
+      //   path: "/files",
+      //   name: "Files",
+      //   component: () => import("pages/FilesPage.vue"),
+      // },
     ],
-    /*   children: [
-
-          {
-            path: "/files",
-            name: "Files",
-            component: () => import("pages/files/Files.vue"),
-          },
-          {
-            path: "/groups",
-            name: "Groups",
-            component: () => import("pages/group/Groups.vue"),
-          },
-          {
-            path: "/updates",
-            name: "Updates",
-            component: () => import("pages/updates/Updates.vue"),
-          },
-        ], */
   },
 
   //User Profile Routes

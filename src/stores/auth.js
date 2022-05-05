@@ -28,10 +28,7 @@ export const useAuthStore = defineStore("auth", {
 
   getters: {
     getAuthProfile: (state) => {
-      return {
-        ...state.authUser,
-        ...state.authUserProfile,
-      };
+      return Object.assign(state.authUser, state.authUserProfile);
     },
   },
 

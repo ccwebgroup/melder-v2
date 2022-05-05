@@ -47,14 +47,18 @@
 
     <div v-else>
       <!-- No Pinned post? Show illustration -->
-      <q-img
-        class="q-mt-md"
-        src="~assets/illu/augmented_reality_re_f0qd.svg"
-        style="max-width: 600px"
-      />
-      <div class="flex flex-center">
+
+      <div class="text-center">
+        <q-img
+          class="q-mt-md"
+          src="~assets/illu/augmented_reality_re_f0qd.svg"
+          style="max-width: 400px"
+        />
+      </div>
+      <div class="text-center">
         <q-btn
           class="q-mt-md"
+          padding="sm 80px"
           color="primary"
           to="/updates"
           rounded
@@ -63,7 +67,8 @@
           label="Check latest news"
         />
       </div>
-      <div class="text-center text-h6 text-grey q-mt-sm">
+
+      <div class="text-center text-subtitle1 text-grey q-mt-sm">
         Nothing to display...
       </div>
     </div>

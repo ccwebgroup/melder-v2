@@ -8,6 +8,7 @@
 
     <q-footer :class="$q.dark.isActive ? 'bg-dark' : 'bg-white text-dark'">
       <q-tabs
+        v-if="$q.platform.is.mobile"
         indicator-color="transparent"
         :active-color="$q.dark.isActive ? 'secondary' : 'primary'"
       >
@@ -25,13 +26,13 @@
           icon="ti-id-badge"
           label="Groups"
         />
-        <q-route-tab
+        <!-- <q-route-tab
           to="/files"
           no-caps
           name="files"
           icon="ti-folder"
           label="Files"
-        />
+        /> -->
         <q-route-tab
           to="/home"
           no-caps
