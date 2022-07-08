@@ -1,13 +1,19 @@
 <template>
   <q-card flat>
     <q-card-section>
-      <q-avatar size="120px" :color="!authUser.photoURL ? 'grey-5' : ''">
-        <img
+      <q-avatar size="120px" color="grey-5">
+        <q-img
           v-if="authUser.photoURL && !cropImage"
           :src="authUser.photoURL"
           alt=""
+          loading="eager"
         />
-        <img v-else-if="cropImage" :src="cropImage.toDataURL()" alt="" />
+        <q-img
+          loading="eager"
+          v-else-if="cropImage"
+          :src="cropImage.toDataURL()"
+          alt=""
+        />
         <q-icon v-else color="white" size="50px" name="fas fa-user" />
         <q-btn
           color="primary"
@@ -18,6 +24,7 @@
           icon="photo_camera"
         />
       </q-avatar>
+      <!-- Hidden Input -->
       <q-file
         v-model="imgFile"
         @update:model-value="handleCropperDialog"
@@ -28,31 +35,48 @@
       />
 
       <!-- Profile Details -->
-      <div class="profile-caption">
-        <div class="text-subtitle1 text-bold">
-          {{ authUser.displayName }}
-        </div>
+      <div class="profile">
         <div class="text-subtitle2">
+          <q-icon class="q-mr-sm" name="person" color="primary" />
+          <span>{{ authUser.displayName }}</span>
+        </div>
+        <div class="text-caption">
           <q-icon class="q-mr-sm" name="email" color="primary" />
           <span>{{ authUser.email }}</span>
         </div>
-        <div v-show="authUser.address" class="text-subtitle2 q-mb-sm">
-          <q-icon
-            class="q-mr-sm"
-            name="fas fa-map-marker-alt"
-            color="primary"
+      </div>
+      <q-item-label class="q-mt-md">Details</q-item-label>
+      <div style="max-width: 500px" class="q-mx-auto">
+        <q-form @submit="updatingDisplayName" class="q-mt-sm">
+          <q-input
+            v-model="profileForm.displayName"
+            dense
+            outlined
+            placeholder="Change display name"
           />
-          <span>{{ authUser.address }}</span>
-        </div>
-        <div class="text-caption">
-          {{ authUser.bio }}
-        </div>
+          <q-card-actions align="right">
+            <q-card-actions class="q-pa-none" align="right">
+              <q-btn
+                :disable="!profileForm.displayName"
+                flat
+                type="submit"
+                no-caps
+                dense
+                label="Update"
+                color="primary"
+              />
+            </q-card-actions>
+          </q-card-actions>
+        </q-form>
       </div>
     </q-card-section>
 
+    <q-separator spaced />
+
     <q-card-section v-if="profile">
       <!-- List of Social Links -->
-      <q-list dense>
+      <q-item-label>Social</q-item-label>
+      <q-list dense style="max-width: 500px" class="q-mx-auto">
         <q-item v-for="link in profile.social_links" :key="link.platform">
           <q-item-section avatar>
             <q-icon
@@ -82,53 +106,82 @@
       </q-list>
     </q-card-section>
 
-    <q-card-section style="max-width: 600px">
-      <div class="text-subtitle2 q-mb-sm">Add social links</div>
-      <q-select
-        dense
-        label="Platform"
-        v-model="social_links.platform"
-        standout="bg-primary text-white"
-        @update:model-value="addLink"
-        :options="platforms"
-      />
+    <q-card-section>
+      <q-item-label class="q-mb-sm">Add social links</q-item-label>
+      <div style="max-width: 500px" class="q-mx-auto">
+        <q-select
+          dense
+          label="Platform"
+          v-model="social_links.platform"
+          standout="bg-primary text-white"
+          @update:model-value="addLink"
+          :options="platforms"
+        />
+        <transition
+          appear
+          enter-active-class="animated fadeInUp"
+          leave-active-class="animated fadeOutDown"
+        >
+          <div class="q-gutter-y-sm q-mt-md" v-if="social_links.platform">
+            <q-input
+              v-model="social_links.username"
+              dense
+              outlined
+              placeholder="Username"
+            />
+            <div class="text-right q-gutter-x-md">
+              <q-btn
+                @click="clearLinks"
+                unelevated
+                flat
+                dense
+                no-caps
+                color="negative"
+                label="Cancel"
+              />
+              <q-btn
+                @click="saveSocialLink"
+                :disable="!social_links.username"
+                unelevated
+                flat
+                dense
+                no-caps
+                color="primary"
+                label="Save"
+                :loading="isLoading"
+              />
+            </div>
+          </div>
+        </transition>
+      </div>
+    </q-card-section>
 
-      <transition
-        appear
-        enter-active-class="animated fadeInUp"
-        leave-active-class="animated fadeOutDown"
-      >
-        <div class="q-gutter-y-sm q-mt-md" v-if="social_links.platform">
+    <q-separator spaced />
+
+    <q-card-section>
+      <q-item-label class="q-mb-sm">Security</q-item-label>
+      <div style="max-width: 500px" class="q-mx-auto">
+        <q-form @submit="updatePassword">
           <q-input
-            v-model="social_links.username"
+            v-model="profileForm.password"
+            type="password"
             dense
             outlined
-            placeholder="Username"
+            placeholder="Password"
           />
-          <div class="text-right q-gutter-x-md">
+          <q-card-actions class="q-pa-none" align="right">
             <q-btn
-              @click="saveSocialLink"
-              unelevated
+              :disable="!profileForm.password"
               flat
-              dense
+              type="submit"
               no-caps
-              color="negative"
-              label="Cancel"
-            />
-            <q-btn
-              @click="saveSocialLink"
-              :disable="!social_links.username"
-              unelevated
-              flat
               dense
-              no-caps
+              label="Update"
               color="primary"
-              label="Save"
-              :loading="isLoading"
             />
-          </div>
-        </div>
-      </transition>
+          </q-card-actions>
+        </q-form>
+      </div>
     </q-card-section>
   </q-card>
 </template>
@@ -150,8 +203,23 @@ const authStore = useAuthStore(),
 
 const authUser = computed(() => authStore.authUser),
   profile = computed(() => userStore.userProfile);
-
 onMounted(() => userStore.getUserProfile(authUser.value.uid));
+
+const profileForm = reactive({
+  displayName: "",
+  password: "",
+});
+
+const updatingDisplayName = () => {
+  authStore.updateDisplayName(profileForm.displayName);
+};
+
+const updatePassword = async () => {
+  const res = await authStore.updatePassword(profileForm.password);
+  if (res) {
+    profileForm.password = "";
+  }
+};
 
 const cropImage = ref(null);
 const imgFile = ref([]);
@@ -178,7 +246,12 @@ const handleCropperDialog = (file) => {
   })
     .onOk((result) => {
       cropImage.value = result;
+      result.toBlob(async (blob) => {
+        const image = await blob;
+        userStore.updatePhoto(image);
+      });
     })
+
     .onCancel(() => {
       imgFile.value = null;
     })
@@ -197,13 +270,16 @@ const social_links = reactive({
 const addLink = (platform) => {
   social_links.platform = platform;
 };
+const clearLinks = () => {
+  social_links.platform = "";
+  social_links.username = "";
+};
 const saveSocialLink = async () => {
   isLoading.value = true;
-  const res = await userStore.updateUserProfile({ link: { ...social_links } });
+  const res = await userStore.updateSocial({ link: { ...social_links } });
 
   if (res) {
-    social_links.platform = "";
-    social_links.username = "";
+    clearLinks();
     isLoading.value = false;
   }
 };
@@ -214,6 +290,6 @@ const openLink = (link) => {
 
 // Delete Social Link
 const deleteSocialLink = (link) => {
-  userStore.updateUserProfile({ delete: true, link: link });
+  userStore.updateSocial({ delete: true, link: link });
 };
 </script>

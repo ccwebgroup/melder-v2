@@ -1,9 +1,11 @@
 import { defineStore } from "pinia";
 import { auth, fa, db, fs } from "boot/firebase";
 // Quasar Plugins
-import { Loading, Dialog } from "quasar";
+import { Loading, Dialog, Notify } from "quasar";
 //Other Stores
 import { useUserStore } from "./users";
+// Other components
+import LoginPrompt from "components/dialogs/LoginPrompt.vue";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
@@ -11,7 +13,90 @@ export const useAuthStore = defineStore("auth", {
   }),
 
   actions: {
-    async singInWithProvider(payload) {
+    async updateDisplayName(displayName) {
+      try {
+        await fa.updateProfile(auth.currentUser, {
+          displayName: displayName,
+        });
+
+        await useUserStore().updateProfile({ displayName: displayName });
+
+        this.authUser.displayName = displayName;
+        Notify.create({
+          type: "positive",
+          icon: "thumb_up",
+          message: "Display name successfully updated!",
+          position: "bottom-right",
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    },
+
+    async updatePassword(pass) {
+      Loading.show();
+      try {
+        await fa.updatePassword(auth.currentUser, pass);
+        Notify.create({
+          type: "positive",
+          icon: "thumb_up",
+          message: "Password successfully updated!",
+          position: "bottom-right",
+        });
+        return true;
+      } catch (err) {
+        if (err.code == "auth/requires-recent-login") {
+          const res = await this.reauthUser(pass);
+          if (res) this.updatePassword(pass);
+        }
+      } finally {
+        Loading.hide();
+      }
+    },
+
+    async reauthUser(pass) {
+      let provider = null;
+      auth.currentUser.providerData.forEach((profile) => {
+        if (profile.providerId == "google.com") provider = "google.com";
+      });
+
+      Dialog.create({
+        component: LoginPrompt,
+        componentProps: {
+          data: {
+            password: pass,
+            provider: provider,
+          },
+        },
+      }).onOk(async (creds) => {
+        try {
+          await fa.reauthenticateWithCredential(auth.currentUser, creds);
+
+          return true;
+        } catch (err) {
+          const errCode = err.code;
+          let errMessage = "Please try again.";
+
+          switch (errCode) {
+            case "auth/invalid-email":
+              errMessage = "Email is invalid";
+              break;
+            case "auth/user-not-found":
+              errMessage = "User is not registered.";
+              break;
+            case "auth/wrong-password":
+              errMessage = "Wrong password.";
+              break;
+          }
+          Dialog.create({
+            title: "Login Error",
+            message: errMessage,
+          });
+        }
+      });
+    },
+
+    async singInWithProvider(payload, reauth) {
       const userStore = useUserStore();
       let provider;
       if (payload == "google") {
@@ -26,13 +111,20 @@ export const useAuthStore = defineStore("auth", {
 
           const userRef = fs.doc(db, "users", user.uid);
           const userSnap = await fs.getDoc(userRef);
+
+          // Reauth
+          if (reauth) {
+            this.updatePassword(reauth.password);
+            return true;
+          }
+
           if (!userSnap.exists()) {
             //Add a User Profile
             userStore.addUserProfile({
               id: user.uid,
               displayName: user.displayName,
               email: user.email,
-              photoURL: user.photoURL ? user.photoURL : null,
+              photoURL: null,
             });
           }
 
@@ -151,7 +243,7 @@ export const useAuthStore = defineStore("auth", {
     async handleAuthStateChanged() {
       fa.onAuthStateChanged(auth, (authUser) => {
         if (authUser) {
-          this.authUser = authUser;
+          this.authUser = { ...authUser };
           //Get Auth User's profile as well
           // userStore.getUserProfile(authUser.uid).then((profile) => {
           //   this.authUserProfile = profile;

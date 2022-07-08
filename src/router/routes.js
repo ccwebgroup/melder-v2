@@ -2,21 +2,36 @@ const routes = [
   // Main Routes
   {
     path: "/",
-    redirect: "/home",
+    redirect: "/blogs",
     component: () => import("layouts/MainLayout.vue"),
     meta: {
       requiresAuth: true,
     },
     children: [
-      {
-        path: "/home",
-        name: "Home",
-        component: () => import("pages/IndexPage.vue"),
-      },
+      // {
+      //   path: "/home",
+      //   name: "Home",
+      //   component: () => import("pages/IndexPage.vue"),
+      // },
       {
         path: "/profile",
         name: "Profile",
         component: () => import("pages/user/ProfilePage.vue"),
+      },
+      {
+        path: "/blogs",
+        name: "Blogs",
+        component: () => import("pages/blog/BlogsList.vue"),
+      },
+      {
+        path: "/blogs/create",
+        name: "Create Post",
+        component: () => import("pages/blog/CreatePost.vue"),
+      },
+      {
+        path: "/blog/:id",
+        name: "Post",
+        component: () => import("pages/blog/ViewPost.vue"),
       },
     ],
   },

@@ -5,9 +5,10 @@
     transition-show="scale"
     transition-hide="slide-down"
   >
-    <q-card>
+    <q-card style="max-height: 450px">
       <q-card-section>
         <vue-cropper
+          style="height: 350px"
           :src="blob"
           :stencil-props="{
             handlers: {},
@@ -36,7 +37,7 @@
           flat
           no-caps
           color="primary"
-          label="Crop"
+          label="Save"
           @click="saveCropImage"
         />
       </q-card-actions>

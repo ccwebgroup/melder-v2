@@ -1,7 +1,7 @@
 {
   "name": "melder-v2-1",
   "version": "0.0.1",
-  "description": "A group management platform.",
+  "description": "A learning platform that includes educational blogs, discussions and courses.",
   "productName": "Melder",
   "author": "ccwebgroup <ccwebgroup@gmail.com>",
   "private": true,

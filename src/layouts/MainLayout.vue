@@ -3,8 +3,8 @@
     <q-header class="bg-primary text-white">
       <q-toolbar>
         <q-toolbar-title>
-          <q-avatar>
-            <!-- <img src="https://cdn.quasar.dev/logo-v2/svg/logo-mono-white.svg" /> -->
+          <q-avatar v-if="$q.screen.lt.md" size="34px" color="white">
+            <q-img width="32px" src="~assets/png/melder-logo.png" />
           </q-avatar>
           {{ $route.name }}
         </q-toolbar-title>
@@ -14,6 +14,7 @@
     <q-drawer
       v-if="!$q.screen.lt.md"
       :breakpoint="400"
+      :width="260"
       show-if-above
       side="left"
       bordered
@@ -29,7 +30,13 @@
         >
           <q-item-section avatar>
             <q-avatar size="40px" :color="!authUser.photoURL ? 'grey-5' : ''">
-              <img v-if="authUser.photoURL" :src="authUser.photoURL" alt="" />
+              <q-img
+                loading="eager"
+                spinner-size="20px"
+                v-if="authUser.photoURL"
+                :src="authUser.photoURL"
+                alt=""
+              />
               <q-icon v-else color="white" size="22px" name="fas fa-user" />
             </q-avatar>
           </q-item-section>
@@ -79,7 +86,14 @@
       </q-item>
     </q-drawer>
 
-    <q-drawer show-if-above side="right" bordered>
+    <q-drawer
+      v-if="!$q.screen.lt.md"
+      show-if-above
+      side="right"
+      bordered
+      :breakpoint="400"
+      :width="240"
+    >
       <!-- drawer content -->
     </q-drawer>
 
@@ -97,8 +111,9 @@ import { useAuthStore } from "src/stores/auth";
 const authStore = useAuthStore();
 
 const links = [
-  { path: "/home", name: "Home", icon: "las la-home" },
-  { path: "/groups", name: "Groups", icon: "las la-users" },
+  // { path: "/home", name: "Home", icon: "las la-home" },
+  { path: "/blogs", name: "Blogs", icon: "las la-blog" },
+  // { path: "/groups", name: "Groups", icon: "las la-users" },
 ];
 
 const authUser = computed(() => authStore.authUser);
