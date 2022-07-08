@@ -1,0 +1,21 @@
+// @import url("https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;800&display=swap");
+
+body {
+  // font-family: "Heebo", sans-serif;
+  font-family: "Poppins", sans-serif;
+}
+
+.rounded-border {
+  border-radius: 25px;
+}
+
+.round-border {
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+}
+
+.bg-primary-dark {
+  background-color: #031f3b;
+}
