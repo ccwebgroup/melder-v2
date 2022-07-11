@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "melder-ac3b7"
+  },
+  "targets": {
+    "melder-ac3b7": {
+      "hosting": {
+        "melderv1": [
+          "melder-v1"
+        ]
+      }
+    }
+  }
+}

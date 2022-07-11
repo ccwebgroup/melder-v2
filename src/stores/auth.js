@@ -128,7 +128,7 @@ export const useAuthStore = defineStore("auth", {
             });
           }
 
-          this.router.replace("/home");
+          this.router.replace("/blogs");
         }
       } catch (err) {
         // Handle Errors here.
@@ -137,7 +137,7 @@ export const useAuthStore = defineStore("auth", {
         // The email of the user's account used.
         const email = err.email;
         // The AuthCredential type that was used.
-        const credential = GoogleAuthProvider.credentialFromError(err);
+        const credential = fa.GoogleAuthProvider.credentialFromError(err);
         // ...
         Dialog.create({
           title: "Sorry, signing in error.",
@@ -161,7 +161,7 @@ export const useAuthStore = defineStore("auth", {
         );
 
         Loading.hide();
-        this.router.replace("/home");
+        this.router.replace("/blogs");
       } catch (err) {
         const errCode = err.code;
         let errMessage;
@@ -211,7 +211,7 @@ export const useAuthStore = defineStore("auth", {
             photoURL: null,
           });
           Loading.hide();
-          this.router.replace("/home");
+          this.router.replace("/blogs");
         }
       } catch (error) {
         const errorCode = error.code;

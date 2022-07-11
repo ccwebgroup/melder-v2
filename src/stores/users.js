@@ -9,8 +9,14 @@ export const useUserStore = defineStore("users", {
   }),
 
   actions: {
+    async routeToUserProfile(user) {
+      this.router.push({
+        path: `/user/${user.id}`,
+      });
+    },
+
     async updateProfile(changes) {
-      const userRef = fs.doc(db, "users", authUser.uid);
+      const userRef = fs.doc(db, "users", auth.currentUser.uid);
       await fs.updateDoc(userRef, changes);
     },
 

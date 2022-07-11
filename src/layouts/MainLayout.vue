@@ -4,7 +4,7 @@
       <q-toolbar>
         <q-toolbar-title>
           <q-avatar v-if="$q.screen.lt.md" size="34px" color="white">
-            <q-img width="32px" src="~assets/png/melder-logo.png" />
+            <q-img width="32px" src="/png/melder-logo.png" />
           </q-avatar>
           {{ $route.name }}
         </q-toolbar-title>
@@ -18,10 +18,15 @@
       show-if-above
       side="left"
       bordered
+      class="q-px-sm"
     >
-      <q-list class="q-px-lg" style="margin-top: 100px">
+      <q-list style="margin-top: 100px">
         <EssentialLink v-bind="link" v-for="link in links" :key="link.path" />
-        <q-separator spaced />
+      </q-list>
+
+      <q-separator spaced inset />
+
+      <q-list dense v-if="authUser">
         <!-- User Profile link -->
         <q-item
           :class="$q.screen.lt.md ? 'round-border' : 'rounded-border'"
@@ -52,12 +57,22 @@
             >
           </q-item-section>
         </q-item>
+        <div class="q-ml-lg q-py-md">
+          <q-item dense clickable to="/manage/blogs">
+            <q-item-section avatar>
+              <q-icon size="xs" name="tag" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Your blogs</q-item-label>
+            </q-item-section>
+          </q-item>
+        </div>
       </q-list>
 
       <!-- Melder Logo -->
-      <div class="absolute-top text-center q-pt-md">
+      <div v-if="authUser" class="absolute-top text-center q-pt-md">
         <q-avatar size="70px">
-          <q-img src="png/melder-logo.png" />
+          <q-img src="/png/melder-logo.png" />
         </q-avatar>
       </div>
 
@@ -107,9 +122,10 @@
 import { computed, ref } from "vue";
 import EssentialLink from "src/components/EssentialLink.vue";
 import { useAuthStore } from "src/stores/auth";
+import { useUserStore } from "src/stores/users";
 
 const authStore = useAuthStore();
-
+const userStore = useUserStore();
 const links = [
   // { path: "/home", name: "Home", icon: "las la-home" },
   { path: "/blogs", name: "Blogs", icon: "las la-blog" },

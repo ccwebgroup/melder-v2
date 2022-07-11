@@ -4,9 +4,9 @@ const routes = [
     path: "/",
     redirect: "/blogs",
     component: () => import("layouts/MainLayout.vue"),
-    meta: {
-      requiresAuth: true,
-    },
+    // meta: {
+    //   requiresAuth: true,
+    // },
     children: [
       // {
       //   path: "/home",
@@ -16,7 +16,24 @@ const routes = [
       {
         path: "/profile",
         name: "Profile",
+        meta: {
+          requiresAuth: true,
+        },
         component: () => import("pages/user/ProfilePage.vue"),
+      },
+      {
+        path: "/manage/blogs",
+        name: "Your blogs",
+        meta: {
+          requiresAuth: true,
+        },
+        component: () => import("pages/user/YourBlogs.vue"),
+      },
+
+      {
+        path: "/user/:id",
+        name: "Overview",
+        component: () => import("pages/user/OverviewPage.vue"),
       },
       {
         path: "/blogs",
@@ -29,7 +46,7 @@ const routes = [
         component: () => import("pages/blog/CreatePost.vue"),
       },
       {
-        path: "/blog/:id",
+        path: "/blog/:slug",
         name: "Post",
         component: () => import("pages/blog/ViewPost.vue"),
       },
