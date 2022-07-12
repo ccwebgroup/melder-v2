@@ -50,7 +50,7 @@
                   </transition>
                 </q-card-section>
                 <q-card-actions class="q-gutter-x-md q-pa-none">
-                  <div>
+                  <!-- <div>
                     <q-icon
                       class="q-mr-xs"
                       size="sm"
@@ -58,7 +58,7 @@
                       name="star"
                     />
                     <span>{{ props.row.rate.length }}</span>
-                  </div>
+                  </div> -->
                   <q-btn
                     size="sm"
                     @click="handleDialog(props.row)"

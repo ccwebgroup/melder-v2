@@ -117,8 +117,19 @@
     </q-inner-loading>
   </q-page>
 </template>
+<style lang="sass">
+.ql-video
+  width: 100%
+  height: 56.25vw
+  max-height: calc(800px / 16 * 9)
+
+img
+  width: 100%
+  max-width: 750px
+  height: auto
+</style>
 <script setup>
-import { computed, ref, onBeforeUnmount } from "vue";
+import { computed, ref, onBeforeUnmount, watch } from "vue";
 import { useBlogStore } from "stores/blogs";
 import { useRoute, useRouter } from "vue-router";
 import { useFilters } from "src/composables/filters";

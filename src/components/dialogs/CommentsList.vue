@@ -2,12 +2,15 @@
   <q-dialog
     ref="dialogRef"
     @hide="onDialogHide"
-    position="right"
+    :position="$q.screen.lt.md ? 'standard' : 'right'"
     seamless
     full-height
     square
+    :maximized="$q.screen.lt.md"
+    transition-show="slide-left"
+    transition-hide="slide-right"
   >
-    <q-card style="width: 414px">
+    <q-card :class="$q.screen.lt.md ? '' : 'side-drawer'">
       <q-card-actions class="q-pb-none">
         <span class="q-ml-sm text-subtitle1"
           >Comments({{ blog.commentsCount }})</span
@@ -118,7 +121,10 @@
 
 <style lang="sass">
 .q-dialog__inner--minimized
-    padding: 0px
+  padding: 0px
+
+.side-drawer
+  width: 414px
 </style>
 <script setup>
 import { useDialogPluginComponent } from "quasar";

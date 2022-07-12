@@ -43,7 +43,7 @@
                       }}</q-item-label>
                     </q-item-section>
                     <q-item-section side top>
-                      <div>
+                      <!-- <div>
                         <q-icon
                           class="q-mr-sm"
                           color="orange"
@@ -51,7 +51,7 @@
                         /><span class="text-caption">{{
                           props.row.rate.length
                         }}</span>
-                      </div>
+                      </div> -->
                     </q-item-section>
                   </q-item>
                   <q-item class="q-mt-sm" dense>

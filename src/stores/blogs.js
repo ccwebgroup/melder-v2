@@ -149,7 +149,8 @@ export const useBlogStore = defineStore("blogs", {
         const blogRef = fs.collection(db, "blogs");
         const doc = await fs.addDoc(blogRef, {
           ...blog,
-          rate: [],
+          likes: 0,
+          dislikes: 0,
           commentsCount: 0,
           softDelete: false,
           authorId: auth.currentUser.uid,

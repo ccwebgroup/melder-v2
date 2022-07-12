@@ -20,6 +20,7 @@
     "pinia-plugin-persist": "^1.0.0",
     "quasar": "^2.7.5",
     "quill-blot-formatter": "^1.0.5",
+    "quill-image-compress": "^1.2.26",
     "vue": "^3.0.0",
     "vue-advanced-cropper": "^2.8.3",
     "vue-router": "^4.0.0",

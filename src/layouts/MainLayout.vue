@@ -115,6 +115,14 @@
     <q-page-container>
       <router-view />
     </q-page-container>
+
+    <q-footer v-if="$q.screen.lt.md" class="bg-white shadow-3 text-dark">
+      <q-toolbar>
+        <div class="row justify-center q-gutter-x-sm">
+          <q-btn to="/blogs" round size="xl" flat icon="las la-blog" />
+        </div>
+      </q-toolbar>
+    </q-footer>
   </q-layout>
 </template>
 
