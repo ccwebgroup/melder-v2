@@ -11,6 +11,19 @@ export const useBlogStore = defineStore("blogs", {
   }),
 
   actions: {
+    async addLikeOrDislike(blogId, type) {
+      const blogRef = fs.doc(db, "blogs", blogId);
+      let changes;
+      if (type == "like") {
+        changes = { likes: fs.increment(1) };
+        this.blog.likes += 1;
+      } else {
+        changes = { dislikes: fs.increment(1) };
+        this.blog.dislikes += 1;
+      }
+      await fs.updateDoc(blogRef, changes);
+    },
+
     async deleteComment(blogId, commentId) {
       const blogRef = fs.doc(db, "blogs", blogId);
       const commentRef = fs.doc(blogRef, "comments", commentId);
@@ -34,6 +47,7 @@ export const useBlogStore = defineStore("blogs", {
       this.blog.comments.push({
         ...comment,
         id: doc.id,
+        canUpdate: true,
         author: auth.currentUser,
         createdAt: new Date(),
       });
@@ -44,7 +58,8 @@ export const useBlogStore = defineStore("blogs", {
     async getComments(blogId) {
       const blogRef = fs.doc(db, "blogs", blogId);
       const commentRef = fs.collection(blogRef, "comments");
-      const docs = await fs.getDocs(commentRef);
+      const q = fs.query(commentRef, fs.orderBy("createdAt"));
+      const docs = await fs.getDocs(q);
       docs.forEach(async (doc) => {
         const comment = {
           ...doc.data(),
@@ -52,6 +67,8 @@ export const useBlogStore = defineStore("blogs", {
         };
         // Get Author Details
         const author = await useUserStore().getUserProfile(comment.authorId);
+        comment.canUpdate =
+          comment.authorId == auth.currentUser.uid ? true : false;
         comment.author = author;
         comment.createdAt = comment.createdAt.toDate();
         this.blog.comments.push(comment);
@@ -112,7 +129,8 @@ export const useBlogStore = defineStore("blogs", {
       const blogsRef = fs.collection(db, "blogs");
       const q = fs.query(
         blogsRef,
-        fs.where("authorId", "==", auth.currentUser.uid)
+        fs.where("authorId", "==", auth.currentUser.uid),
+        fs.orderBy("createdAt")
       );
       const docs = await fs.getDocs(q);
       docs.forEach((doc) => {
@@ -127,7 +145,11 @@ export const useBlogStore = defineStore("blogs", {
 
     async getAllBlogs() {
       const blogsRef = fs.collection(db, "blogs");
-      const q = fs.query(blogsRef, fs.where("softDelete", "!=", true));
+      const q = fs.query(
+        blogsRef,
+        fs.where("softDelete", "==", false),
+        fs.orderBy("createdAt")
+      );
       const docSnap = await fs.getDocs(q);
       docSnap.forEach(async (doc) => {
         const blog = { ...doc.data(), id: doc.id };

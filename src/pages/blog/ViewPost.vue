@@ -9,33 +9,48 @@
         <q-card flat v-show="!loading" class="q-pb-xl">
           <q-card-actions
             align="center"
-            class="q-gutter-x-sm fixed-bottom z-top q-mx-auto q-mb-md q-pa-none"
+            class="fixed-bottom z-top q-mb-md q-pa-none"
+            :class="$q.screen.lt.md ? 'floating-actions' : ''"
             v-show="!invisible"
           >
             <div
-              class="rounded-border bg-grey-1 shadow-1 q-px-lg q-gutter-x-sm"
+              class="rounded-border row bg-grey-1 shadow-1 q-px-lg q-gutter-x-md"
             >
-              <q-btn
-                flat
-                size="15px"
-                round
-                color="positive"
-                icon="las la-thumbs-up"
-              />
-              <q-btn
-                flat
-                size="15px"
-                round
-                color="negative"
-                icon="las la-thumbs-down"
-              />
-              <q-btn
-                @click="handleCommentDialog"
-                size="15x"
-                flat
-                round
-                icon="las la-comment"
-              />
+              <div>
+                <q-btn
+                  flat
+                  size="15px"
+                  round
+                  color="positive"
+                  :disable="liked"
+                  icon="las la-thumbs-up"
+                  @click="likeOrDislike(blog.id, 'like')"
+                />
+                <span>{{ blog.likes }}</span>
+              </div>
+
+              <div>
+                <q-btn
+                  flat
+                  size="15px"
+                  round
+                  color="negative"
+                  :disable="disliked"
+                  icon="las la-thumbs-down"
+                  @click="likeOrDislike(blog.id, 'dislike')"
+                />
+                <span>{{ blog.dislikes }}</span>
+              </div>
+              <div>
+                <q-btn
+                  @click="handleCommentDialog"
+                  size="15px"
+                  flat
+                  round
+                  icon="las la-comment"
+                />
+                <span>{{ blog.commentsCount }}</span>
+              </div>
             </div>
           </q-card-actions>
 
@@ -84,28 +99,42 @@
           <q-card>
             <q-card-section v-html="blog.body" />
           </q-card>
-          <q-card-actions v-intersection="onIntersection">
-            <q-btn
-              flat
-              size="18px"
-              round
-              color="positive"
-              icon="las la-thumbs-up"
-            />
-            <q-btn
-              flat
-              size="18px"
-              round
-              color="negative"
-              icon="las la-thumbs-down"
-            />
-            <q-btn
-              @click="handleCommentDialog"
-              size="18px"
-              flat
-              round
-              icon="las la-comment"
-            />
+          <q-card-actions class="q-gutter-x-md" v-intersection="onIntersection">
+            <div>
+              <q-btn
+                flat
+                size="15px"
+                round
+                color="positive"
+                :disable="liked"
+                icon="las la-thumbs-up"
+                @click="likeOrDislike(blog.id, 'like')"
+              />
+              <span>{{ blog.likes }}</span>
+            </div>
+
+            <div>
+              <q-btn
+                flat
+                size="15px"
+                round
+                color="negative"
+                :disable="disliked"
+                icon="las la-thumbs-down"
+                @click="likeOrDislike(blog.id, 'dislike')"
+              />
+              <span>{{ blog.dislikes }}</span>
+            </div>
+            <div>
+              <q-btn
+                @click="handleCommentDialog"
+                size="15px"
+                flat
+                round
+                icon="las la-comment"
+              />
+              <span>{{ blog.commentsCount }}</span>
+            </div>
           </q-card-actions>
         </q-card>
       </transition>
@@ -127,6 +156,9 @@ img
   width: 100%
   max-width: 750px
   height: auto
+
+.floating-actions
+  margin-bottom: 60px
 </style>
 <script setup>
 import { computed, ref, onBeforeUnmount, watch } from "vue";
@@ -138,7 +170,6 @@ import { useUserStore } from "stores/users";
 import CommentsList from "components/dialogs/CommentsList.vue";
 
 const $q = useQuasar();
-const rating = ref(0);
 const { formatBlogDate } = useFilters();
 const blogStore = useBlogStore();
 const userStore = useUserStore();
@@ -146,6 +177,14 @@ const $route = useRoute();
 const $router = useRouter();
 const loading = ref(true);
 const invisible = ref(false);
+const liked = ref(false);
+const disliked = ref(false);
+
+const likeOrDislike = (id, type) => {
+  if (type == "like") liked.value = true;
+  else disliked.value = true;
+  blogStore.addLikeOrDislike(id, type);
+};
 
 const onIntersection = (entry) => {
   invisible.value = entry.isIntersecting;

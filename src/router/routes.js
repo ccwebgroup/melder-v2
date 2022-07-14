@@ -38,7 +38,7 @@ const routes = [
       {
         path: "/blogs",
         name: "Blogs",
-        component: () => import("pages/blog/BlogsList.vue"),
+        component: () => import("pages/blog/IndexPage.vue"),
       },
       {
         path: "/blogs/create",
@@ -49,6 +49,22 @@ const routes = [
         path: "/blog/:slug",
         name: "Post",
         component: () => import("pages/blog/ViewPost.vue"),
+      },
+
+      {
+        path: "/discussions",
+        name: "Discussions",
+        component: () => import("pages/discussions/IndexPage.vue"),
+      },
+      {
+        path: "/questions",
+        name: "Questions",
+        component: () => import("pages/questions/IndexPage.vue"),
+      },
+      {
+        path: "/tutorials",
+        name: "Tutorials",
+        component: () => import("pages/tutorials/IndexPage.vue"),
       },
     ],
   },

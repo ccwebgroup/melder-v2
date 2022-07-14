@@ -42,14 +42,35 @@
               'Description should be minimum of 10 characters',
           ]"
         />
-
-        <QuillEditor
-          v-model:content="blogForm.body"
-          toolbar="full"
-          contentType="html"
-          :options="options"
-          :modules="modules"
-        />
+        <div class="q-pa-md bg-white">
+          <q-card-actions
+            align="center"
+            class="fixed-bottom z-top q-mb-md q-pa-none"
+            :class="$q.screen.lt.md ? 'floating-actions' : ''"
+          >
+            <div
+              class="rounded-border row bg-grey-1 shadow-1 q-px-lg q-gutter-x-md"
+            >
+              <q-btn
+                flat
+                color="secondary"
+                @click="toggle"
+                :icon="
+                  $q.fullscreen.isActive ? 'fullscreen_exit' : 'fullscreen'
+                "
+              />
+              <q-btn @click="submitPostForm" flat color="primary" icon="save" />
+            </div>
+          </q-card-actions>
+          <QuillEditor
+            v-model:content="blogForm.body"
+            contentType="html"
+            theme="bubble"
+            placeholder="Begin your story here..."
+            :toolbar="toolbar"
+            :modules="modules"
+          />
+        </div>
       </q-form>
     </q-card>
 
@@ -63,6 +84,11 @@
     </q-page-scroller>
   </q-page>
 </template>
+
+<style lang="sass" scoped>
+.floating-actions
+  margin-bottom: 60px
+</style>
 <script setup>
 import { reactive, ref, watch } from "vue";
 import { useQuasar } from "quasar";
@@ -72,10 +98,41 @@ import dashify from "dashify";
 import BlotFormatter from "quill-blot-formatter";
 import ImageCompress from "quill-image-compress";
 
-const options = reactive({
-  theme: "snow",
-  placeholder: "Tell your story...",
-});
+const blogStore = useBlogStore();
+const $q = useQuasar();
+
+const toggle = (e) => {
+  const target =
+    e.target.parentNode.parentNode.parentNode.parentNode.parentNode;
+  $q.fullscreen
+    .toggle(target)
+    .then(() => {
+      // success!
+    })
+    .catch((err) => {
+      alert(err);
+      // uh, oh, error!!
+      // console.error(err)
+    });
+};
+
+const toolbar = [
+  [{ size: ["small", false, "large", "huge"] }],
+  [{ header: [1, 2, 3, 4, 5, 6, false] }],
+
+  ["bold", "italic", "underline"],
+  [{ color: [] }, { background: [] }], // dropdown with defaults from theme
+  [{ font: [] }],
+
+  [{ align: [] }],
+  [{ direction: "rtl" }],
+  [{ list: "ordered" }, { list: "bullet" }],
+  [{ script: "sub" }, { script: "super" }],
+  ["blockquote", "code-block"],
+  ["link", "image", "video"],
+
+  ["clean"],
+];
 
 const modules = [
   {
@@ -95,8 +152,6 @@ const modules = [
 ];
 
 const byteSize = (str) => new Blob([str]).size;
-const blogStore = useBlogStore();
-const $q = useQuasar();
 const blogForm = reactive({
   title: "",
   description: "",
@@ -107,10 +162,11 @@ const postForm = ref();
 const submitPostForm = () => postForm.value.submit();
 const creatingBlog = () => {
   const bytes = byteSize(blogForm.body);
+
   if (bytes > 1048576) {
     $q.dialog({
       title: "Sorry",
-      message: `Post exceeds the memory limit of 1,048,576 bytes. Current memory size is <span class='text-bold text-negative'>${bytes}</span> bytes.`,
+      message: `Your post memory size <span class='text-bold text-negative'>${bytes}</span> bytes exceeds the memory limit of 1,048,576 bytes.`,
       html: true,
     });
     return;

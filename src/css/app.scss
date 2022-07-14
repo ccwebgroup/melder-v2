@@ -16,6 +16,11 @@ body {
   height: 50px;
 }
 
+.rounded-top {
+  border-top-left-radius: 15px !important;
+  border-top-right-radius: 15px !important;
+}
+
 .bg-primary-dark {
   background-color: #031f3b;
 }

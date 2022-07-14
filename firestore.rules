@@ -2,21 +2,26 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{userId} {
-    // Anyone to read users details
+      // Anyone to read users details
       allow read: if true;
-  	// Only auth user can update delete own details
+      // Only auth user can update delete own details
       allow update, delete: if request.auth != null && request.auth.uid == userId;
-    // Only auth specifically admin to add a user
+      // Only auth specifically admin to add a user
       allow create: if request.auth != null;
     }
 
     match /blogs/{blogId} {
-    //Anyone can read
-    allow read: if true;
-    //Only auth can create blog
-    allow create: if request.auth != null;
-    //Only auth can update the auth own blog
-      allow update, delete: if request.auth != null;
+      //Anyone can read
+      allow read: if true;
+      //Only auth can create blog
+      allow create: if request.auth != null;
+
+      //Only auth can update the auth own blog
+      allow update: if request.auth != null && request.resource.data.commentsCount != null
+      allow update: if request.auth != null && request.resource.data.likes != null
+      allow update: if request.auth != null && request.resource.data.dislikes != null
+      allow delete: if request.auth != null && request.auth.uid == resource.data.authorId;
+      allow update: if request.auth != null && request.auth.uid == resource.data.authorId;
     }
 
     match /blogs/{blogId}/comments/{commentId} {
@@ -25,7 +30,7 @@ service cloud.firestore {
       //Only auth can create comment
       allow create: if request.auth != null;
       //Only auth can modify auth own comment
-      allow update, delete: if request.auth != null;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.authorId;
     }
   }
 }

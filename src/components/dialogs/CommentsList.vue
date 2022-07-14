@@ -9,6 +9,7 @@
     :maximized="$q.screen.lt.md"
     transition-show="slide-left"
     transition-hide="slide-right"
+    class="z-max"
   >
     <q-card :class="$q.screen.lt.md ? '' : 'side-drawer'">
       <q-card-actions class="q-pb-none">
@@ -91,7 +92,7 @@
                 formatFns(comment.createdAt)
               }}</q-item-label>
             </q-item-section>
-            <q-item-section side>
+            <q-item-section v-if="comment.canUpdate" side>
               <q-icon name="more_horiz" class="cursor-pointer">
                 <q-menu>
                   <q-list style="min-width: 100px">

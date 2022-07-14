@@ -49,16 +49,31 @@
                     />
                   </transition>
                 </q-card-section>
-                <q-card-actions class="q-gutter-x-md q-pa-none">
-                  <!-- <div>
+                <q-card-actions class="q-pa-none q-gutter-x-sm">
+                  <div>
                     <q-icon
                       class="q-mr-xs"
-                      size="sm"
-                      color="orange"
-                      name="star"
-                    />
-                    <span>{{ props.row.rate.length }}</span>
-                  </div> -->
+                      color="positive"
+                      name="las la-thumbs-up"
+                    /><span class="text-caption">{{ props.row.likes }}</span>
+                  </div>
+                  <div>
+                    <q-icon
+                      class="q-mr-xs"
+                      color="negative"
+                      name="las la-thumbs-down"
+                    /><span class="text-caption">{{ props.row.dislikes }}</span>
+                  </div>
+                  <div>
+                    <q-icon
+                      class="q-mr-xs"
+                      color="primary"
+                      name="las la-comment"
+                    /><span class="text-caption">{{
+                      props.row.commentsCount
+                    }}</span>
+                  </div>
+
                   <q-btn
                     size="sm"
                     @click="handleDialog(props.row)"
