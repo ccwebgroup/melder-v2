@@ -66,7 +66,6 @@
             v-model:content="blogForm.body"
             contentType="html"
             theme="bubble"
-            placeholder="Begin your story here..."
             :toolbar="toolbar"
             :modules="modules"
           />
@@ -155,7 +154,7 @@ const byteSize = (str) => new Blob([str]).size;
 const blogForm = reactive({
   title: "",
   description: "",
-  body: "",
+  body: '<h4><strong class="ql-size-large" style="color: rgb(136, 136, 136);">Write your story here...</strong></h4>',
   slug: "",
 });
 const postForm = ref();
